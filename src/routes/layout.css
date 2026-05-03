@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton-svelte';
+@import '@skeletonlabs/skeleton/themes/cerberus';
+
+@layer base {
+	:global(html) {
+		color-scheme: light;
+	}
+
+	:global(body) {
+		@apply min-h-screen bg-surface-100 text-surface-900 antialiased;
+		background-image:
+			radial-gradient(circle at top left, rgba(205, 148, 70, 0.22), transparent 32%),
+			radial-gradient(circle at bottom right, rgba(91, 114, 140, 0.18), transparent 30%),
+			linear-gradient(180deg, rgba(255, 252, 245, 0.96), rgba(242, 234, 219, 0.96));
+	}
+
+	:global(::selection) {
+		@apply bg-primary-500/20 text-surface-950;
+	}
+}
+
+@layer components {
+	.forge-panel {
+		@apply rounded-[1.75rem] border border-surface-300/70 bg-white/75 shadow-lg backdrop-blur;
+	}
+
+	.forge-button {
+		@apply inline-flex items-center justify-center rounded-full border border-primary-700/20 bg-primary-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-primary-900/20 transition hover:-translate-y-0.5 hover:bg-primary-700;
+	}
+
+	.forge-button-ghost {
+		@apply inline-flex items-center justify-center rounded-full border border-surface-300 bg-white/80 px-4 py-2 font-medium text-surface-700 transition hover:border-primary-400 hover:text-primary-700;
+	}
+
+	.forge-input,
+	.forge-select,
+	.forge-textarea {
+		@apply w-full rounded-2xl border border-surface-300 bg-white/85 px-4 py-3 text-surface-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15;
+	}
+	.forge-textarea {
+		@apply min-h-36;
+	}
+
+	.forge-badge {
+		@apply inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary-900;
+	}
+
+	.forge-link,
+	.markdown a {
+		@apply text-primary-700 underline decoration-primary-300 underline-offset-4 transition hover:text-primary-900;
+	}
+
+	.forge-card-grid {
+		@apply grid gap-5 md:grid-cols-2 xl:grid-cols-3;
+	}
+
+	.forge-stat {
+		@apply rounded-2xl border border-white/70 bg-white/75 p-4 shadow-sm;
+	}
+
+	.markdown {
+		@apply space-y-4 leading-7 text-surface-800;
+	}
+
+	.markdown h1,
+	.markdown h2,
+	.markdown h3 {
+		@apply font-semibold text-surface-950;
+	}
+
+	.markdown ul {
+		@apply list-disc pl-5;
+	}
+
+	.markdown p code,
+	.markdown li code {
+		@apply rounded bg-surface-200 px-1.5 py-0.5 text-sm;
+	}
+
+	.markdown pre {
+		@apply overflow-x-auto rounded-2xl bg-surface-950 p-4 text-sm text-white;
+	}
+}
