@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { DreamForgeError, createCharacter } from '$lib/server/dreamforge/mutations';
-import { parseTraitValuesJson, requireString } from '$lib/server/dreamforge/forms';
+import { parseTraitValuesFromForm, requireString } from '$lib/server/dreamforge/forms';
 import { getUniversesWithTraitsForUser } from '$lib/server/dreamforge/queries';
 
 export const load: PageServerLoad = ({ locals, url }) => {
@@ -32,7 +32,7 @@ export const actions: Actions = {
 				name: requireString(formData, 'name', 'Character name'),
 				summary: formData.get('summary')?.toString() ?? '',
 				bioMarkdown: formData.get('bioMarkdown')?.toString() ?? '',
-				traitValues: parseTraitValuesJson(formData.get('traitValues')?.toString() ?? '')
+				traitValues: parseTraitValuesFromForm(formData)
 			});
 
 			throw redirect(303, `/characters/${characterId}`);
@@ -40,13 +40,7 @@ export const actions: Actions = {
 			if (error instanceof DreamForgeError) {
 				return fail(error.status, {
 					message: error.message,
-					values: {
-						universeId: formData.get('universeId')?.toString() ?? '',
-						name: formData.get('name')?.toString() ?? '',
-						summary: formData.get('summary')?.toString() ?? '',
-						bioMarkdown: formData.get('bioMarkdown')?.toString() ?? '',
-						traitValues: formData.get('traitValues')?.toString() ?? '{}'
-					}
+					values: Object.fromEntries(formData.entries())
 				});
 			}
 

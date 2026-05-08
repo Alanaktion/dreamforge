@@ -12,7 +12,8 @@ export function requireString(formData: FormData, key: string, label = key): str
 }
 
 export function optionalString(formData: FormData, key: string): string {
-	return formData.get(key)?.toString().trim() ?? '';
+	const value = formData.get(key)?.toString() ?? '';
+	return value.trim();
 }
 
 export function parseTraitDefinitionsJson(raw: string): TraitDefinitionInput[] {
@@ -55,6 +56,25 @@ export function parseTraitDefinitionsJson(raw: string): TraitDefinitionInput[] {
 			isRequired: Boolean(candidate.isRequired)
 		};
 	});
+}
+
+export function parseTraitValuesFromForm(formData: FormData): Record<string, string> {
+	const values: Record<string, string> = {};
+
+	for (const [key, rawValue] of formData.entries()) {
+		if (!key.startsWith('trait__')) {
+			continue;
+		}
+
+		const traitKey = key.slice('trait__'.length);
+		const trimmed = rawValue.toString().trim();
+
+		if (trimmed) {
+			values[traitKey] = trimmed;
+		}
+	}
+
+	return values;
 }
 
 export function parseTraitValuesJson(raw: string): Record<string, string> {
