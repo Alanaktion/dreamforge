@@ -59,7 +59,7 @@ export function parseTraitDefinitionsJson(raw: string): TraitDefinitionInput[] {
 }
 
 export function parseTraitValuesFromForm(formData: FormData): Record<string, string> {
-	const values: Record<string, string> = {};
+	const values = Object.create(null) as Record<string, string>;
 
 	for (const [key, rawValue] of formData.entries()) {
 		if (!key.startsWith('trait__')) {
@@ -67,6 +67,12 @@ export function parseTraitValuesFromForm(formData: FormData): Record<string, str
 		}
 
 		const traitKey = key.slice('trait__'.length);
+
+		// Reject unsafe keys that could bypass Object.create(null) protections
+		if (traitKey === '__proto__' || traitKey === 'constructor' || traitKey === 'prototype') {
+			continue;
+		}
+
 		const trimmed = rawValue.toString().trim();
 
 		if (trimmed) {

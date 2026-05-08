@@ -3,13 +3,48 @@
 
 	let { data, form }: PageProps = $props();
 
-	let selectedUniverseId = $state(data.selectedUniverseId);
+	// Respect user's selection after a failed submit
+	let selectedUniverseId = $state(form?.values?.universeId ?? data.selectedUniverseId);
 	let name = $state(form?.values?.name ?? '');
 	let summary = $state(form?.values?.summary ?? '');
 	let bioMarkdown = $state(form?.values?.bioMarkdown ?? '');
 
+	// Pre-parse options for each trait to avoid JSON.parse in the template
+	let traitOptions: Record<string, string[]> = {};
+	$effect(() => {
+		const universe = data.universes.find((u) => u.id === selectedUniverseId);
+		if (!universe) return;
+		traitOptions = {};
+		for (const def of universe.traitDefinitions) {
+			if (def.valueType === 'json' && def.optionsJson !== '[]') {
+				try {
+					traitOptions[def.key] = JSON.parse(def.optionsJson);
+				} catch {
+					traitOptions[def.key] = [];
+				}
+			} else {
+				traitOptions[def.key] = [];
+			}
+		}
+	});
+
 	function selectedUniverse() {
 		return data.universes.find((u) => u.id === selectedUniverseId) ?? data.universes[0];
+	}
+
+	function getTraitValue(key: string): string | undefined {
+		return form?.values?.[`trait__${key}`];
+	}
+
+	function isRequiredField(key: string): boolean {
+		const def = selectedUniverse().traitDefinitions.find((d) => d.key === key);
+		if (!def || !def.isRequired) return false;
+		// Only show errors after a failed submit (form.values exists but is incomplete)
+		return !!form?.values && form.values[`trait__${key}`] === undefined;
+	}
+
+	function getOptions(key: string): string[] {
+		return traitOptions[key] ?? [];
 	}
 </script>
 
@@ -22,7 +57,7 @@
 
 		<label class="block space-y-2">
 			<span class="text-sm font-medium text-surface-800">Universe</span>
-			<select class="forge-select" name="universeId" value={selectedUniverseId} required oninput={(e) => selectedUniverseId = (e.target as HTMLSelectElement).value}>
+			<select class="forge-select" name="universeId" bind:value={selectedUniverseId} required>
 				{#each data.universes as universeOption (universeOption.id)}
 					<option value={universeOption.id}>{universeOption.name}</option>
 				{/each}
@@ -62,36 +97,37 @@
 								{/if}
 
 								{#if definition.valueType === 'boolean'}
-									<label class="mt-2 flex cursor-pointer items-center gap-3">
+									<!-- Hidden input ensures unchecked = "false" is always submitted -->
+									<input type="hidden" name={`trait__${definition.key}`} value="false" />
+									<div class="mt-2 flex cursor-pointer items-center gap-3">
 										<input
-											class="sr-only peer"
+											class="peer sr-only"
 											type="checkbox"
 											name={`trait__${definition.key}`}
 											value="true"
-											checked={form?.values?.[`trait__${definition.key}`] === 'true'}
+											checked={getTraitValue(definition.key) === 'true'}
 										/>
 										<span class="relative inline-block h-6 w-11 rounded-full bg-surface-300 transition peer-checked:bg-primary-600">
 											<span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition peer-checked:translate-x-5"></span>
 										</span>
 										<span class="text-sm text-surface-700 peer-checked:text-primary-700">
-											{form?.values?.[`trait__${definition.key}`] === 'true' ? 'Yes' : 'No'}
+											{getTraitValue(definition.key) === 'true' ? 'Yes' : 'No'}
 										</span>
-									</label>
+									</div>
 								{:else if definition.valueType === 'number'}
 									<input
 										class="mt-2 forge-input font-mono"
 										type="number"
 										name={`trait__${definition.key}`}
-										value={form?.values?.[`trait__${definition.key}`] || ''}
+										value={getTraitValue(definition.key) || ''}
 										placeholder="0"
 										step="any"
-										oninput={(e) => { /* SvelteKit handles form submission */ }}
 									/>
-								{:else if definition.valueType === 'json' && definition.optionsJson !== '[]'}
+								{:else if definition.valueType === 'json' && getOptions(definition.key).length > 0}
 									<select class="mt-2 forge-select" name={`trait__${definition.key}`}>
 										<option value="">— select —</option>
-										{#each JSON.parse(definition.optionsJson) as option}
-											<option value={option} selected={form?.values?.[`trait__${definition.key}`] === option}>{option}</option>
+										{#each getOptions(definition.key) as option}
+											<option value={option} selected={getTraitValue(definition.key) === option}>{option}</option>
 										{/each}
 									</select>
 								{:else if definition.valueType === 'json'}
@@ -99,19 +135,19 @@
 										class="mt-2 forge-textarea font-mono text-sm"
 										name={`trait__${definition.key}`}
 										placeholder='{"key": "value"}'
-									>{form?.values?.[`trait__${definition.key}`] || ''}</textarea>
+									>{getTraitValue(definition.key) || ''}</textarea>
 								{:else}
 									<input
 										class="mt-2 forge-input"
 										type="text"
 										name={`trait__${definition.key}`}
-										value={form?.values?.[`trait__${definition.key}`] || ''}
+										value={getTraitValue(definition.key) || ''}
 										placeholder={definition.description || `Enter ${definition.label.toLowerCase()}`}
 									/>
 								{/if}
 							</label>
 
-							{#if definition.isRequired && !form?.values?.[`trait__${definition.key}`]}
+							{#if isRequiredField(definition.key)}
 								<p class="mt-2 text-xs text-error-600">This field is required.</p>
 							{/if}
 						</div>
