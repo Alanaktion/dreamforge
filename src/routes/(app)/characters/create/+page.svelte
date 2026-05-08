@@ -9,8 +9,10 @@
 	let summary = $state(form?.values?.summary ?? '');
 	let bioMarkdown = $state(form?.values?.bioMarkdown ?? '');
 
-	// Pre-parse options for each trait to avoid JSON.parse in the template
-	let traitOptions: Record<string, string[]> = {};
+	// Pre-parse options for each trait to avoid JSON.parse in the template.
+	// Must be $state() so Svelte 5 detects the assignment and triggers rerender.
+	let traitOptions: Record<string, string[]> = $state({});
+
 	$effect(() => {
 		const universe = data.universes.find((u) => u.id === selectedUniverseId);
 		if (!universe) return;
@@ -40,7 +42,9 @@
 		const def = selectedUniverse().traitDefinitions.find((d) => d.key === key);
 		if (!def || !def.isRequired) return false;
 		// Only show errors after a failed submit (form.values exists but is incomplete)
-		return !!form?.values && form.values[`trait__${key}`] === undefined;
+		// Treat empty/whitespace-only strings as missing too.
+		const val = form?.values?.[`trait__${key}`];
+		return !!form?.values && (!val || !String(val).trim());
 	}
 
 	function getOptions(key: string): string[] {
@@ -84,7 +88,8 @@
 			{#if selectedUniverse().traitDefinitions.length === 0}
 				<p class="text-sm text-surface-600 italic">This universe has no trait definitions yet.</p>
 			{:else}
-				<div class="space-y-3">
+				<!-- keyed block by selectedUniverseId ensures inputs are remounted (reset) when switching universes -->
+				<div class="space-y-3" key={selectedUniverseId}>
 					{#each selectedUniverse().traitDefinitions as definition (definition.key)}
 						<div class="rounded-2xl border border-surface-200 bg-white/75 p-4">
 							<label class="block space-y-1">
@@ -97,8 +102,10 @@
 								{/if}
 
 								{#if definition.valueType === 'boolean'}
-									<!-- Hidden input ensures unchecked = "false" is always submitted -->
-									<input type="hidden" name={`trait__${definition.key}`} value="false" />
+									<!-- Hidden input only for required booleans so optional ones can stay "unset" -->
+									{#if definition.isRequired}
+										<input type="hidden" name={`trait__${definition.key}`} value="false" />
+									{/if}
 									<div class="mt-2 flex cursor-pointer items-center gap-3">
 										<input
 											class="peer sr-only"
