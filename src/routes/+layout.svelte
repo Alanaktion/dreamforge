@@ -19,10 +19,10 @@
 <div class="min-h-screen">
 	{#if !data.user}
 		<header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-			<a class="flex items-center gap-3 text-surface-950" href="/">
+			<a class="flex items-center gap-3 text-surface-950 dark:text-surface-50" href="/">
 				<span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-600 text-lg font-bold text-white">DF</span>
 				<span>
-					<span class="block text-xs uppercase tracking-[0.3em] text-primary-700">Worldbuilding Workspace</span>
+					<span class="block text-xs uppercase tracking-[0.3em] text-primary-700 dark:text-primary-300">Worldbuilding Workspace</span>
 					<span class="text-xl font-semibold">DreamForge</span>
 				</span>
 			</a>

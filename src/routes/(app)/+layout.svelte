@@ -21,11 +21,11 @@
 			<div class="space-y-3">
 				<div class="flex items-center gap-3">
 					<span class="forge-badge">DreamForge</span>
-					<span class="text-sm text-surface-700">{data.universeCount} universe{data.universeCount === 1 ? '' : 's'} in your private workspace</span>
+					<span class="text-sm text-surface-700 dark:text-surface-300">{data.universeCount} universe{data.universeCount === 1 ? '' : 's'} in your private workspace</span>
 				</div>
 				<div>
-					<h1 class="text-3xl font-semibold tracking-tight text-surface-950">Welcome back, {data.user.name}.</h1>
-					<p class="mt-2 max-w-2xl text-sm leading-6 text-surface-700">Keep canon tidy with explicit universes, reusable traits, markdown bios, and images served from local storage.</p>
+					<h1 class="text-3xl font-semibold tracking-tight text-surface-950 dark:text-surface-50">Welcome back, {data.user.name}.</h1>
+					<p class="mt-2 max-w-2xl text-sm leading-6 text-surface-700 dark:text-surface-300">Keep canon tidy with explicit universes, reusable traits, markdown bios, and images served from local storage.</p>
 				</div>
 			</div>
 
