@@ -6,9 +6,10 @@ import { getUniverseCountForUser } from '$lib/server/dreamforge/queries';
 
 const starterTraitDefinitions = JSON.stringify(
 	[
-		{ key: 'role', label: 'Role', valueType: 'text', isRequired: true },
-		{ key: 'origin', label: 'Origin', valueType: 'text' },
-		{ key: 'alignment', label: 'Alignment', valueType: 'text' }
+		{ key: 'role', label: 'Role', category: 'personality', valueType: 'text' },
+		{ key: 'alignment', label: 'Alignment', category: 'personality', valueType: 'text' },
+		{ key: 'origin', label: 'Origin', category: 'history', valueType: 'text' },
+		{ key: 'appearance', label: 'Appearance', category: 'appearance', valueType: 'text' }
 	],
 	null,
 	2
@@ -40,7 +41,9 @@ export const actions: Actions = {
 			const universeId = createUniverse(locals.user.id, {
 				name: requireString(formData, 'name', 'Universe name'),
 				summary: formData.get('summary')?.toString() ?? '',
-				traitDefinitions: parseTraitDefinitionsJson(formData.get('traitDefinitions')?.toString() ?? '')
+				traitDefinitions: parseTraitDefinitionsJson(
+					formData.get('traitDefinitions')?.toString() ?? ''
+				)
 			});
 
 			throw redirect(303, `/characters/create?universe=${universeId}`);

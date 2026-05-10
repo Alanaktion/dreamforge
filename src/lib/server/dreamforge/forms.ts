@@ -42,6 +42,7 @@ export function parseTraitDefinitionsJson(raw: string): TraitDefinitionInput[] {
 		return {
 			key: String(candidate.key ?? ''),
 			label: String(candidate.label ?? ''),
+			category: String(candidate.category ?? ''),
 			description: String(candidate.description ?? ''),
 			valueType:
 				candidate.valueType === 'number' ||
@@ -51,42 +52,23 @@ export function parseTraitDefinitionsJson(raw: string): TraitDefinitionInput[] {
 					: 'text',
 			options: Array.isArray(candidate.options)
 				? candidate.options.map((value) => String(value))
-				: [],
-			isRequired: Boolean(candidate.isRequired)
+				: []
 		};
 	});
 }
 
-export function parseTraitValuesJson(raw: string): Record<string, string> {
-	if (!raw.trim()) {
-		return {};
+export function parseTraitValuesFromFormData(
+	formData: FormData,
+	keys: string[]
+): Record<string, string> {
+	const values: Record<string, string> = {};
+
+	for (const key of keys) {
+		const value = formData.get(`trait:${key}`)?.toString().trim() ?? '';
+		if (value) {
+			values[key] = value;
+		}
 	}
 
-	let parsed: unknown;
-
-	try {
-		parsed = JSON.parse(raw);
-	} catch {
-		throw new DreamForgeError('Trait values must be valid JSON.');
-	}
-
-	if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-		throw new DreamForgeError('Trait values must be a JSON object.');
-	}
-
-	return Object.fromEntries(
-		Object.entries(parsed as Record<string, unknown>).map(([key, value]) => [key, stringifyTraitValue(value)])
-	);
-}
-
-function stringifyTraitValue(value: unknown): string {
-	if (typeof value === 'string') {
-		return value;
-	}
-
-	if (typeof value === 'number' || typeof value === 'boolean') {
-		return String(value);
-	}
-
-	return JSON.stringify(value);
+	return values;
 }

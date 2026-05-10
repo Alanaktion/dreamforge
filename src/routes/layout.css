@@ -10,7 +10,7 @@
 	}
 
 	:global(body) {
-		@apply min-h-screen bg-surface-100 text-surface-900 dark:bg-surface-950 dark:text-surface-100 antialiased;
+		@apply min-h-screen bg-surface-100 text-surface-900 antialiased dark:bg-surface-950 dark:text-surface-100;
 		background-image:
 			radial-gradient(circle at top left, rgba(205, 148, 70, 0.22), transparent 32%),
 			radial-gradient(circle at bottom right, rgba(91, 114, 140, 0.18), transparent 30%),
@@ -47,7 +47,7 @@
 	.forge-input,
 	.forge-select,
 	.forge-textarea {
-		@apply w-full rounded-2xl border border-surface-300 bg-white/85 px-4 py-3 text-surface-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 dark:border-surface-600 dark:bg-surface-900/85 dark:text-surface-100;
+		@apply w-full rounded-2xl border border-surface-300 bg-white/85 px-4 py-3 text-surface-900 shadow-sm transition outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/15 dark:border-surface-600 dark:bg-surface-900/85 dark:text-surface-100;
 	}
 	.forge-input::placeholder,
 	.forge-textarea::placeholder {
@@ -58,7 +58,7 @@
 	}
 
 	.forge-badge {
-		@apply inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary-900 dark:bg-primary-900/45 dark:text-primary-200;
+		@apply inline-flex items-center rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold tracking-[0.16em] text-primary-900 uppercase dark:bg-primary-900/45 dark:text-primary-200;
 	}
 
 	.forge-link,

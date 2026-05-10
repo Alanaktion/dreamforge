@@ -20,9 +20,15 @@
 	{#if !data.user}
 		<header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
 			<a class="flex items-center gap-3 text-surface-950 dark:text-surface-50" href="/">
-				<span class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-600 text-lg font-bold text-white">DF</span>
+				<span
+					class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-600 text-lg font-bold text-white"
+					>DF</span
+				>
 				<span>
-					<span class="block text-xs uppercase tracking-[0.3em] text-primary-700 dark:text-primary-300">Worldbuilding Workspace</span>
+					<span
+						class="block text-xs tracking-[0.3em] text-primary-700 uppercase dark:text-primary-300"
+						>Worldbuilding Workspace</span
+					>
 					<span class="text-xl font-semibold">DreamForge</span>
 				</span>
 			</a>
@@ -40,7 +46,8 @@
 
 	{#if !data.user && page.url.pathname !== '/login' && page.url.pathname !== '/register'}
 		<footer class="mx-auto max-w-7xl px-6 pb-10 text-sm text-surface-700 lg:px-10">
-			DreamForge keeps every universe private by default, with local media storage and SSR-backed tools built for long-form creation.
+			DreamForge keeps every universe private by default, with local media storage and
+			SSR-backed tools built for long-form creation.
 		</footer>
 	{/if}
 </div>

@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import type { LayoutProps } from './$types';
+	import Forge from '$lib/assets/forge.svelte';
 
 	let { data, children }: LayoutProps = $props();
 
 	const navItems = [
+		{ href: '/universes', label: 'Universes' },
 		{ href: '/characters', label: 'Characters' },
-		{ href: '/characters/create', label: 'Create' },
 		{ href: '/gallery', label: 'Gallery' }
 	];
 
@@ -20,12 +21,18 @@
 		<div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 			<div class="space-y-3">
 				<div class="flex items-center gap-3">
-					<span class="forge-badge">DreamForge</span>
-					<span class="text-sm text-surface-700 dark:text-surface-300">{data.universeCount} universe{data.universeCount === 1 ? '' : 's'} in your private workspace</span>
-				</div>
-				<div>
-					<h1 class="text-3xl font-semibold tracking-tight text-surface-950 dark:text-surface-50">Welcome back, {data.user.name}.</h1>
-					<p class="mt-2 max-w-2xl text-sm leading-6 text-surface-700 dark:text-surface-300">Keep canon tidy with explicit universes, reusable traits, markdown bios, and images served from local storage.</p>
+					<Forge class="size-5" />
+					<span class="forge-badge hidden 2xl:block">DreamForge</span>
+					<nav class="flex flex-wrap gap-3">
+						{#each navItems as item (item.href)}
+							<a
+								class={isActive(item.href) ? 'forge-button' : 'forge-button-ghost'}
+								href={item.href}
+							>
+								{item.label}
+							</a>
+						{/each}
+					</nav>
 				</div>
 			</div>
 
@@ -33,19 +40,6 @@
 				<button class="forge-button-ghost" type="submit">Sign out</button>
 			</form>
 		</div>
-
-		<nav class="mt-6 flex flex-wrap gap-3">
-			{#each navItems as item (item.href)}
-				<a
-					class={isActive(item.href)
-						? 'forge-button'
-						: 'forge-button-ghost'}
-					href={item.href}
-				>
-					{item.label}
-				</a>
-			{/each}
-		</nav>
 	</header>
 
 	{@render children()}

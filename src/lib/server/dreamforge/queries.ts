@@ -28,6 +28,24 @@ export function getUniversesForUser(userId: string) {
 		.all();
 }
 
+export function getUniversesWithDetailsForUser(userId: string) {
+	return getUniversesForUser(userId).map((universe) => ({
+		...universe,
+		traitCount:
+			db
+				.select({ count: count() })
+				.from(universeTraitDefinitions)
+				.where(eq(universeTraitDefinitions.universeId, universe.id))
+				.get()?.count ?? 0,
+		characterCount:
+			db
+				.select({ count: count() })
+				.from(characters)
+				.where(eq(characters.universeId, universe.id))
+				.get()?.count ?? 0
+	}));
+}
+
 export function getUniverseWithTraitsForUser(userId: string, universeId: string) {
 	const universe = db
 		.select()
@@ -110,9 +128,9 @@ export function getCharacterDetailForUser(userId: string, characterId: string) {
 			key: universeTraitDefinitions.key,
 			label: universeTraitDefinitions.label,
 			description: universeTraitDefinitions.description,
+			category: universeTraitDefinitions.category,
 			valueType: universeTraitDefinitions.valueType,
 			optionsJson: universeTraitDefinitions.optionsJson,
-			isRequired: universeTraitDefinitions.isRequired,
 			value: characterTraitValues.value
 		})
 		.from(universeTraitDefinitions)

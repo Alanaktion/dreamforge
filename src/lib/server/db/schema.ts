@@ -1,5 +1,12 @@
 import { relations } from 'drizzle-orm';
-import { index, integer, primaryKey, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import {
+	index,
+	integer,
+	primaryKey,
+	sqliteTable,
+	text,
+	uniqueIndex
+} from 'drizzle-orm/sqlite-core';
 import { user } from './auth.schema';
 
 export type TraitValueType = 'text' | 'number' | 'boolean' | 'json';
@@ -43,6 +50,7 @@ export const universeTraitDefinitions = sqliteTable(
 		label: text('label').notNull(),
 		description: text('description').notNull().default(''),
 		valueType: text('value_type').$type<TraitValueType>().notNull().default('text'),
+		category: text('category').notNull().default(''),
 		optionsJson: text('options_json').notNull().default('[]'),
 		isRequired: integer('is_required', { mode: 'boolean' }).notNull().default(false),
 		position: integer('position').notNull().default(0),
