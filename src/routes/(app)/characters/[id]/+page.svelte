@@ -21,11 +21,14 @@
 <section class="space-y-8">
 	<div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
 		<div class="forge-panel p-8">
-			<div class="flex flex-wrap items-center gap-3">
-				<span class="forge-badge">{data.character.universeName}</span>
-				<span class="text-sm text-surface-600"
-					>Created {data.character.createdAt.toLocaleDateString()}</span
-				>
+			<div class="flex flex-wrap items-center justify-between gap-3">
+				<div class="flex flex-wrap items-center gap-3">
+					<span class="forge-badge">{data.character.universeName}</span>
+					<span class="text-sm text-surface-600"
+						>Created {data.character.createdAt.toLocaleDateString()}</span
+					>
+				</div>
+				<a class="forge-button-ghost" href="/characters/{data.character.id}/edit">Edit</a>
 			</div>
 
 			<h2
@@ -98,7 +101,6 @@
 	<div class="space-y-4">
 		<div class="flex items-center justify-between gap-4">
 			<div>
-				<span class="forge-badge">Linked images</span>
 				<h3 class="mt-3 text-2xl font-semibold text-surface-950 dark:text-surface-50">
 					Character gallery
 				</h3>

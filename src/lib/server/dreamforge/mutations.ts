@@ -167,6 +167,82 @@ export function createCharacter(userId: string, input: CharacterInput) {
 	return characterId;
 }
 
+export function updateCharacter(userId: string, characterId: string, input: CharacterInput) {
+	const name = input.name.trim();
+
+	if (!name) {
+		throw new DreamForgeError('Character name is required.');
+	}
+
+	const character = db
+		.select()
+		.from(characters)
+		.where(and(eq(characters.id, characterId), eq(characters.ownerId, userId)))
+		.get();
+
+	if (!character) {
+		throw new DreamForgeError('Character not found.', 404);
+	}
+
+	const definitions = db
+		.select()
+		.from(universeTraitDefinitions)
+		.where(eq(universeTraitDefinitions.universeId, character.universeId))
+		.all();
+
+	const definitionMap = new Map(definitions.map((d) => [d.key, d]));
+	const traitValues = input.traitValues ?? {};
+
+	for (const key of Object.keys(traitValues)) {
+		if (!definitionMap.has(key)) {
+			throw new DreamForgeError(`Unknown trait key: ${key}`);
+		}
+	}
+
+	const now = new Date();
+
+	db.transaction((tx) => {
+		tx.update(characters)
+			.set({
+				name,
+				summary: input.summary?.trim() ?? '',
+				bioMarkdown: input.bioMarkdown?.trim() ?? '',
+				updatedAt: now
+			})
+			.where(eq(characters.id, characterId))
+			.run();
+
+		for (const definition of definitions) {
+			const value = traitValues[definition.key]?.trim() ?? '';
+
+			if (value) {
+				tx.insert(characterTraitValues)
+					.values({
+						characterId,
+						traitDefinitionId: definition.id,
+						value,
+						createdAt: now,
+						updatedAt: now
+					})
+					.onConflictDoUpdate({
+						target: [characterTraitValues.characterId, characterTraitValues.traitDefinitionId],
+						set: { value, updatedAt: now }
+					})
+					.run();
+			} else {
+				tx.delete(characterTraitValues)
+					.where(
+						and(
+							eq(characterTraitValues.characterId, characterId),
+							eq(characterTraitValues.traitDefinitionId, definition.id)
+						)
+					)
+					.run();
+			}
+		}
+	});
+}
+
 export function createImage(userId: string, input: ImageInput) {
 	const imageId = crypto.randomUUID();
 	const now = new Date();

@@ -49,7 +49,6 @@
 			onsubmit={handleUpload}
 		>
 			<div>
-				<span class="forge-badge">POST /api/upload</span>
 				<h2 class="mt-3 text-3xl font-semibold text-surface-950 dark:text-surface-50">
 					Upload an image into your private gallery
 				</h2>

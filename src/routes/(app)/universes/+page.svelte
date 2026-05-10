@@ -7,7 +7,6 @@
 <section class="space-y-6">
 	<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 		<div>
-			<span class="forge-badge">Universes</span>
 			<h2
 				class="mt-3 text-4xl font-semibold tracking-tight text-surface-950 dark:text-surface-50"
 			>

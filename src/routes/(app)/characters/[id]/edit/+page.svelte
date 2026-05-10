@@ -1,55 +1,45 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
 
-	let selectedUniverseId = $state(
-		untrack(() => form?.values?.universeId ?? data.selectedUniverseId)
-	);
+	type TraitValue = (typeof data.traitValues)[number];
 
-	let selectedUniverse = $derived(
-		data.universes.find((u) => u.id === selectedUniverseId) ?? data.universes[0]
-	);
-
-	type TraitDef = (typeof data.universes)[number]['traitDefinitions'][number];
-
-	function groupByCategory(defs: TraitDef[]): [string, TraitDef[]][] {
-		const map = new Map<string, TraitDef[]>();
-		for (const def of defs) {
-			const cat = def.category || '';
+	function groupByCategory(traits: TraitValue[]): [string, TraitValue[]][] {
+		const map = new Map<string, TraitValue[]>();
+		for (const trait of traits) {
+			const cat = trait.category || '';
 			if (!map.has(cat)) map.set(cat, []);
-			map.get(cat)!.push(def);
+			map.get(cat)!.push(trait);
 		}
 		return [...map.entries()];
 	}
 
-	let traitsByCategory = $derived(groupByCategory(selectedUniverse.traitDefinitions));
+	let traitsByCategory = $derived(groupByCategory(data.traitValues));
 
 	function restoredValue(key: string): string {
-		if (form?.values?.universeId === selectedUniverseId) {
-			return form.values.traits?.[key] ?? '';
+		if (form?.values?.traits) {
+			return form.values.traits[key] ?? '';
 		}
 		return '';
+	}
+
+	function initialValue(trait: TraitValue): string {
+		if (form?.values?.traits) {
+			return form.values.traits[trait.key] ?? '';
+		}
+		return trait.value ?? '';
 	}
 </script>
 
 <section class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
 	<form class="forge-panel space-y-5 p-8" method="POST">
 		<div>
+			<a class="forge-link text-sm" href="/characters/{data.character.id}">← Back to character</a>
 			<h2 class="mt-3 text-3xl font-semibold text-surface-950 dark:text-surface-50">
-				Create a character profile
+				Edit character profile
 			</h2>
 		</div>
-
-		<label class="block space-y-2">
-			<span class="text-sm font-medium text-surface-800 dark:text-surface-200">Universe</span>
-			<select class="forge-select" name="universeId" bind:value={selectedUniverseId}>
-				{#each data.universes as universeOption (universeOption.id)}
-					<option value={universeOption.id}>{universeOption.name}</option>
-				{/each}
-			</select>
-		</label>
 
 		<label class="block space-y-2">
 			<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
@@ -58,7 +48,7 @@
 			<input
 				class="forge-input"
 				name="name"
-				value={form?.values?.name ?? ''}
+				value={form?.values?.name ?? data.character.name}
 				placeholder="Captain Ilyra Voss"
 				required
 			/>
@@ -69,7 +59,7 @@
 			<textarea
 				class="forge-textarea"
 				name="summary"
-				placeholder="A concise card view summary.">{form?.values?.summary ?? ''}</textarea
+				placeholder="A concise card view summary.">{form?.values?.summary ?? data.character.summary}</textarea
 			>
 		</label>
 
@@ -81,15 +71,13 @@
 				class="forge-textarea font-mono text-sm"
 				name="bioMarkdown"
 				placeholder="# Early life&#10;&#10;Write the long-form biography here."
-				>{form?.values?.bioMarkdown ?? ''}</textarea
+				>{form?.values?.bioMarkdown ?? data.character.bioMarkdown}</textarea
 			>
 		</label>
 
-		{#if selectedUniverse.traitDefinitions.length > 0}
+		{#if data.traitValues.length > 0}
 			<div class="space-y-4">
-				<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
-					>Traits</span
-				>
+				<span class="text-sm font-medium text-surface-800 dark:text-surface-200">Traits</span>
 
 				{#each traitsByCategory as [category, traits] (category)}
 					<div class="space-y-3">
@@ -102,8 +90,7 @@
 						{/if}
 						{#each traits as trait (trait.id)}
 							<label class="block space-y-1">
-								<span
-									class="text-sm font-medium text-surface-800 dark:text-surface-200"
+								<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
 									>{trait.label}</span
 								>
 								{#if trait.description}
@@ -114,12 +101,12 @@
 										<option value="">— unset —</option>
 										<option
 											value="true"
-											selected={restoredValue(trait.key) === 'true'}
+											selected={initialValue(trait) === 'true'}
 											>Yes</option
 										>
 										<option
 											value="false"
-											selected={restoredValue(trait.key) === 'false'}
+											selected={initialValue(trait) === 'false'}
 											>No</option
 										>
 									</select>
@@ -128,14 +115,14 @@
 										class="forge-input"
 										type="number"
 										name="trait:{trait.key}"
-										value={restoredValue(trait.key)}
+										value={initialValue(trait)}
 									/>
 								{:else}
 									<input
 										class="forge-input"
 										type="text"
 										name="trait:{trait.key}"
-										value={restoredValue(trait.key)}
+										value={initialValue(trait)}
 									/>
 								{/if}
 							</label>
@@ -153,25 +140,22 @@
 			</p>
 		{/if}
 
-		<button class="forge-button w-full" type="submit">Create character</button>
+		<button class="forge-button w-full" type="submit">Save changes</button>
 	</form>
 
 	<aside class="space-y-5">
 		<div class="forge-panel p-6">
 			<p class="text-sm font-semibold tracking-[0.2em] text-primary-700 uppercase">
-				Selected universe
+				Universe
 			</p>
 			<h3 class="mt-3 text-2xl font-semibold text-surface-950 dark:text-surface-50">
-				{selectedUniverse.name}
+				{data.character.universeName}
 			</h3>
 			<p class="mt-3 text-sm leading-7 text-surface-700 dark:text-surface-300">
-				{selectedUniverse.summary || 'No universe summary provided yet.'}
+				{data.character.universeSummary || 'No universe summary provided yet.'}
 			</p>
 			<p class="mt-4 text-sm text-surface-500">
-				{selectedUniverse.traitDefinitions.length} trait{selectedUniverse.traitDefinitions
-					.length === 1
-					? ''
-					: 's'} defined
+				{data.traitDefinitions.length} trait{data.traitDefinitions.length === 1 ? '' : 's'} defined
 			</p>
 		</div>
 	</aside>

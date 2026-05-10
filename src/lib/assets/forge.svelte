@@ -2,6 +2,7 @@
 	let { class: className } = $props();
 </script>
 
+<!-- CC-BY-3.0 Monjin Friends https://thenounproject.com/icon/forge-1044767/ -->
 <svg
 	xmlns="http://www.w3.org/2000/svg"
 	class={className}
