@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 	import type { PageProps } from './$types';
 
@@ -23,7 +24,7 @@
 
 	let newName = $state('');
 	let newSummary = $state('');
-	let newUniverseId = $state(untrack(() => data.universes[0]?.id ?? ''));
+	let newUniverseId = $state(untrack(() => data.selectedUniverseId ?? data.universes[0]?.id ?? ''));
 	let newTraits = $state<Record<string, string>>({});
 
 	let colCount = $derived(4 + data.traitDefinitions.length + (data.selectedUniverseId ? 0 : 1));
@@ -36,23 +37,25 @@
 
 	function setViewMode(mode: 'card' | 'table') {
 		viewMode = mode;
-		const url = new URL(page.url);
+		const { url } = page;
 		url.searchParams.set('view', mode);
 		if (mode === 'card') url.searchParams.delete('universe');
-		goto(url.toString(), { replaceState: true, noScroll: true });
+		// @ts-expect-error URL is known-safe
+		goto(resolve(url.pathname + url.search), { replaceState: true, noScroll: true });
 	}
 
 	function setUniverse(universeId: string) {
 		editingId = null;
 		showCreateRow = false;
-		const url = new URL(page.url);
+		const { url } = page;
 		if (universeId) {
 			url.searchParams.set('universe', universeId);
 		} else {
 			url.searchParams.delete('universe');
 		}
 		url.searchParams.set('view', 'table');
-		goto(url.toString(), { noScroll: true });
+		// @ts-expect-error URL is known-safe
+		goto(resolve(url.pathname + url.search), { noScroll: true });
 	}
 
 	function startEdit(character: Character) {
@@ -72,7 +75,7 @@
 		showCreateRow = true;
 		newName = '';
 		newSummary = '';
-		newUniverseId = data.universes[0]?.id ?? '';
+		newUniverseId = data.selectedUniverseId ?? data.universes[0]?.id ?? '';
 		newTraits = Object.fromEntries(data.traitDefinitions.map((td) => [td.key, '']));
 	}
 
@@ -96,44 +99,30 @@
 </script>
 
 <section class="space-y-6">
-	<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-		<div>
-			<h2
-				class="mt-3 text-4xl font-semibold tracking-tight text-surface-950 dark:text-surface-50"
+	<div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+		<div
+			class="flex overflow-hidden rounded-full border border-surface-300 dark:border-surface-600"
+		>
+			<button
+				type="button"
+				onclick={() => setViewMode('card')}
+				class={viewMode === 'card'
+					? 'forge-button rounded-none rounded-l-full border-0 shadow-none'
+					: 'forge-button-ghost rounded-none rounded-l-full border-0 py-2'}
 			>
-				Your cast, organized by universe.
-			</h2>
-			<p class="mt-3 max-w-2xl text-base leading-7 text-surface-700 dark:text-surface-300">
-				Each card is private to your account and grouped under the owning universe that
-				defines its trait schema.
-			</p>
-		</div>
-
-		<div class="flex shrink-0 items-center gap-3">
-			<div
-				class="flex overflow-hidden rounded-full border border-surface-300 dark:border-surface-600"
+				Cards
+			</button>
+			<button
+				type="button"
+				onclick={() => setViewMode('table')}
+				class={viewMode === 'table'
+					? 'forge-button rounded-none rounded-r-full border-0 shadow-none'
+					: 'forge-button-ghost rounded-none rounded-r-full border-0 py-2'}
 			>
-				<button
-					type="button"
-					onclick={() => setViewMode('card')}
-					class={viewMode === 'card'
-						? 'forge-button rounded-none rounded-l-full border-0 shadow-none'
-						: 'forge-button-ghost rounded-none rounded-l-full border-0 py-2'}
-				>
-					Cards
-				</button>
-				<button
-					type="button"
-					onclick={() => setViewMode('table')}
-					class={viewMode === 'table'
-						? 'forge-button rounded-none rounded-r-full border-0 shadow-none'
-						: 'forge-button-ghost rounded-none rounded-r-full border-0 py-2'}
-				>
-					Table
-				</button>
-			</div>
-			<a class="forge-button" href="/characters/create">Create a character</a>
+				Table
+			</button>
 		</div>
+		<a class="forge-button" href={resolve('/characters/create')}>Create a character</a>
 	</div>
 
 	{#if viewMode === 'card'}
@@ -146,7 +135,9 @@
 					Create your first entry to start attaching trait data, markdown biographies, and
 					gallery images.
 				</p>
-				<a class="forge-button mt-6" href="/characters/create">Open the character form</a>
+				<a class="forge-button mt-6" href={resolve('/characters/create')}
+					>Open the character form</a
+				>
 			</div>
 		{:else}
 			<div class="forge-card-grid">
@@ -163,7 +154,8 @@
 							<h3
 								class="text-2xl font-semibold text-surface-950 dark:text-surface-50"
 							>
-								<a href={`/characters/${character.id}`}>{character.name}</a>
+								<a href={resolve(`/characters/${character.id}`)}>{character.name}</a
+								>
 							</h3>
 							<p
 								class="line-clamp-4 text-sm leading-7 text-surface-700 dark:text-surface-300"
@@ -178,7 +170,7 @@
 							>
 							<a
 								class="forge-link text-sm font-semibold"
-								href={`/characters/${character.id}`}>Open profile</a
+								href={resolve(`/characters/${character.id}`)}>Open profile</a
 							>
 						</div>
 					</article>
@@ -269,13 +261,19 @@
 							{#if !data.selectedUniverseId}
 								<th class="w-32">Universe</th>
 							{/if}
-							<th class="sticky left-0 bg-surface-50 dark:bg-surface-900 min-w-36 lg:min-w-40">Name</th>
+							<th
+								class="sticky left-0 min-w-36 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
+								>Name</th
+							>
 							<th class="min-w-48">Summary</th>
 							{#each data.traitDefinitions as td (td.id)}
 								<th class="min-w-28">{td.label}</th>
 							{/each}
 							<th class="w-24">Updated</th>
-							<th class="sticky right-0 bg-surface-50 dark:bg-surface-900 w-32 lg:min-w-40">Actions</th>
+							<th
+								class="sticky right-0 w-32 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
+								>Actions</th
+							>
 						</tr>
 					</thead>
 					<tbody>
@@ -485,8 +483,13 @@
 											>
 										</td>
 									{/if}
-									<td class="sticky left-0 font-medium text-surface-950 dark:text-surface-50 bg-surface-50 dark:bg-surface-900">
-										<a class="forge-link" href={`/characters/${character.id}`}>
+									<td
+										class="sticky left-0 bg-surface-50 font-medium text-surface-950 dark:bg-surface-900 dark:text-surface-50"
+									>
+										<a
+											class="forge-link"
+											href={resolve(`/characters/${character.id}`)}
+										>
 											{character.name}
 										</a>
 									</td>

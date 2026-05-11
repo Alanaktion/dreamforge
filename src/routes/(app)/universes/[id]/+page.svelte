@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { data, form }: PageProps = $props();
 
@@ -122,7 +123,7 @@
 
 <section class="space-y-8">
 	<div class="flex items-center gap-4">
-		<a class="forge-link text-sm" href="/universes">← All universes</a>
+		<a class="forge-link text-sm" href={resolve('/universes')}>← All universes</a>
 	</div>
 
 	<div class="grid gap-8 lg:grid-cols-2">
@@ -210,7 +211,8 @@
 					<span class="text-sm text-surface-700 dark:text-surface-300">Characters</span>
 					<a
 						class="forge-link text-sm font-medium"
-						href={`/characters?universe=${data.universe.id}`}>View characters</a
+						href={resolve(`/characters?universe=${data.universe.id}`)}
+						>View characters</a
 					>
 				</div>
 			</div>

@@ -1,8 +1,10 @@
 <script lang="ts">
 	import './layout.css';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 	import type { LayoutProps } from './$types';
 	import favicon from '$lib/assets/favicon.svg';
+	import Forge from '$lib/assets/forge.svelte';
 
 	let { data, children }: LayoutProps = $props();
 </script>
@@ -19,11 +21,15 @@
 <div class="min-h-screen">
 	{#if !data.user}
 		<header class="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-			<a class="flex items-center gap-3 text-surface-950 dark:text-surface-50" href="/">
+			<a
+				class="flex items-center gap-3 text-surface-950 dark:text-surface-50"
+				href={resolve('/')}
+			>
 				<span
 					class="flex h-11 w-11 items-center justify-center rounded-full bg-primary-600 text-lg font-bold text-white"
-					>DF</span
 				>
+					<Forge class="size-5 fill-current" />
+				</span>
 				<span>
 					<span
 						class="block text-xs tracking-[0.3em] text-primary-700 uppercase dark:text-primary-300"
@@ -34,8 +40,8 @@
 			</a>
 
 			<nav class="flex items-center gap-3 text-sm font-medium">
-				<a class="forge-button-ghost" href="/login">Sign in</a>
-				<a class="forge-button" href="/register">Create account</a>
+				<a class="forge-button-ghost" href={resolve('/login')}>Sign in</a>
+				<a class="forge-button" href={resolve('/register')}>Create account</a>
 			</nav>
 		</header>
 	{/if}

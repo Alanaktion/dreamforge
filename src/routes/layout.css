@@ -37,7 +37,7 @@
 	}
 
 	.forge-button {
-		@apply inline-flex items-center justify-center rounded-full border border-primary-700/20 bg-primary-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-primary-900/20 transition hover:-translate-y-0.5 hover:bg-primary-700;
+		@apply inline-flex items-center justify-center rounded-full border border-primary-700/20 bg-primary-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-primary-900/20 transition hover:bg-primary-700;
 	}
 
 	.forge-button-ghost {

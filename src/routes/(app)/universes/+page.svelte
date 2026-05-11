@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { data }: PageProps = $props();
 </script>
@@ -45,9 +46,12 @@
 				</div>
 
 				<div class="mt-6 flex items-center justify-end gap-4">
-					<a class="forge-link text-sm font-semibold" href={`/universes/${universe.id}`}
-						>Edit universe</a
+					<a
+						class="forge-link text-sm font-semibold"
+						href={resolve(`/universes/${universe.id}`)}
 					>
+						Edit universe
+					</a>
 				</div>
 			</article>
 		{/each}

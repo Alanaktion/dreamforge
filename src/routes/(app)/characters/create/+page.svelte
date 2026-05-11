@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { SvelteMap } from 'svelte/reactivity';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -15,7 +16,7 @@
 	type TraitDef = (typeof data.universes)[number]['traitDefinitions'][number];
 
 	function groupByCategory(defs: TraitDef[]): [string, TraitDef[]][] {
-		const map = new Map<string, TraitDef[]>();
+		const map = new SvelteMap<string, TraitDef[]>();
 		for (const def of defs) {
 			const cat = def.category || '';
 			if (!map.has(cat)) map.set(cat, []);

@@ -169,7 +169,7 @@
 			{#each data.images as image (image.id)}
 				<figure class="forge-panel overflow-hidden p-3">
 					<img
-						class="aspect-[4/3] w-full rounded-[1.25rem] object-cover"
+						class="aspect-4/3 w-full rounded-[1.25rem] object-cover"
 						src={`/media/${image.filename}`}
 						alt={image.altText || image.originalFilename}
 						loading="lazy"

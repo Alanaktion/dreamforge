@@ -1,12 +1,14 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	let { data, form }: PageProps = $props();
 
 	type TraitValue = (typeof data.traitValues)[number];
 
 	function groupByCategory(traits: TraitValue[]): [string, TraitValue[]][] {
-		const map = new Map<string, TraitValue[]>();
+		const map = new SvelteMap<string, TraitValue[]>();
 		for (const trait of traits) {
 			const cat = trait.category || '';
 			if (!map.has(cat)) map.set(cat, []);
@@ -16,13 +18,6 @@
 	}
 
 	let traitsByCategory = $derived(groupByCategory(data.traitValues));
-
-	function restoredValue(key: string): string {
-		if (form?.values?.traits) {
-			return form.values.traits[key] ?? '';
-		}
-		return '';
-	}
 
 	function initialValue(trait: TraitValue): string {
 		if (form?.values?.traits) {
@@ -35,8 +30,8 @@
 <section class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
 	<form class="forge-panel space-y-5 p-8" method="POST">
 		<div>
-			<a class="forge-link text-sm" href="/characters/{data.character.id}"
-				>← Back to character</a
+			<a class="forge-link text-sm" href={resolve(`/characters/${data.character.id}`)}>
+				← Back to character</a
 			>
 			<h2 class="mt-3 text-3xl font-semibold text-surface-950 dark:text-surface-50">
 				Edit character profile

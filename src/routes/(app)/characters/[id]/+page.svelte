@@ -1,12 +1,14 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	let { data }: PageProps = $props();
 
 	type TraitValue = (typeof data.traitValues)[number];
 
 	function groupByCategory(traits: TraitValue[]): [string, TraitValue[]][] {
-		const map = new Map<string, TraitValue[]>();
+		const map = new SvelteMap<string, TraitValue[]>();
 		for (const trait of traits) {
 			const cat = trait.category || '';
 			if (!map.has(cat)) map.set(cat, []);
@@ -28,7 +30,10 @@
 						>Created {data.character.createdAt.toLocaleDateString()}</span
 					>
 				</div>
-				<a class="forge-button-ghost" href="/characters/{data.character.id}/edit">Edit</a>
+				<a
+					class="forge-button-ghost"
+					href={resolve(`/characters/${data.character.id}/edit`)}>Edit</a
+				>
 			</div>
 
 			<h2
@@ -40,6 +45,7 @@
 				{data.character.summary || 'No summary recorded yet.'}
 			</p>
 
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			<div class="markdown mt-8">{@html data.bioHtml}</div>
 		</div>
 
@@ -105,7 +111,7 @@
 					Character gallery
 				</h3>
 			</div>
-			<a class="forge-button-ghost" href="/gallery">Open global gallery</a>
+			<a class="forge-button-ghost" href={resolve('/gallery')}>Open global gallery</a>
 		</div>
 
 		{#if data.linkedImages.length === 0}
@@ -120,7 +126,7 @@
 				{#each data.linkedImages as image (image.id)}
 					<figure class="forge-panel overflow-hidden p-3">
 						<img
-							class="aspect-[4/3] w-full rounded-[1.25rem] object-cover"
+							class="aspect-4/3 w-full rounded-[1.25rem] object-cover"
 							src={`/media/${image.filename}`}
 							alt={image.altText || image.originalFilename}
 							loading="lazy"

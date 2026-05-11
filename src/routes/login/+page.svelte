@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
+	import { resolve } from '$app/paths';
 
 	let { form }: PageProps = $props();
 </script>
@@ -91,7 +92,7 @@
 
 		<p class="mt-6 text-sm text-surface-700 dark:text-surface-300">
 			Need an account?
-			<a class="forge-link" href="/register">Create one here</a>.
+			<a class="forge-link" href={resolve('/register')}>Create one here</a>.
 		</p>
 	</section>
 </div>
