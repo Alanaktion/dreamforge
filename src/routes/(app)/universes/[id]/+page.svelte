@@ -209,11 +209,18 @@
 				</div>
 				<div class="flex items-center justify-between gap-4">
 					<span class="text-sm text-surface-700 dark:text-surface-300">Characters</span>
-					<a
-						class="forge-link text-sm font-medium"
-						href={resolve(`/characters?universe=${data.universe.id}`)}
-						>View characters</a
-					>
+					<div class="flex items-center gap-4">
+						<a
+							class="forge-link text-sm font-medium"
+							href={resolve(`/universes/${data.universe.id}/import`)}
+							>Import CSV</a
+						>
+						<a
+							class="forge-link text-sm font-medium"
+							href={resolve(`/characters?universe=${data.universe.id}`)}
+							>View characters</a
+						>
+					</div>
 				</div>
 			</div>
 		</div>

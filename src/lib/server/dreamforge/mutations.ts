@@ -1,4 +1,4 @@
-import { and, eq, notInArray } from 'drizzle-orm';
+import { and, asc, eq, notInArray } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import {
 	characterImages,
@@ -494,6 +494,214 @@ export function updateUniverseTraits(
 			}
 		});
 	});
+}
+
+export type ColumnMapping =
+	| { type: 'skip' }
+	| { type: 'name' }
+	| { type: 'trait'; key: string }
+	| { type: 'new_trait'; label: string; key: string; valueType: TraitValueType };
+
+export type ImportResult = {
+	imported: number;
+	failed: { row: number; reason: string }[];
+};
+
+export function importCharacters(
+	userId: string,
+	universeId: string,
+	columnMappings: ColumnMapping[],
+	rows: string[][]
+): ImportResult {
+	const universe = db
+		.select({ id: universes.id })
+		.from(universes)
+		.where(and(eq(universes.id, universeId), eq(universes.ownerId, userId)))
+		.get();
+
+	if (!universe) throw new DreamForgeError('Universe not found.', 404);
+
+	// Load existing trait definitions
+	const existingDefs = db
+		.select()
+		.from(universeTraitDefinitions)
+		.where(eq(universeTraitDefinitions.universeId, universeId))
+		.orderBy(asc(universeTraitDefinitions.position))
+		.all();
+
+	const existingKeySet = new Set(existingDefs.map((d) => d.key));
+	const maxPosition = existingDefs.reduce((max, d) => Math.max(max, d.position), -1);
+
+	// Resolve new trait definitions, deduplicating by original key
+	const newTraitDefs: {
+		id: string;
+		originalKey: string;
+		resolvedKey: string;
+		label: string;
+		valueType: TraitValueType;
+		position: number;
+	}[] = [];
+	const seenOriginalKeys = new Set<string>();
+	const resolvedNewKeys = new Set<string>();
+	let posCounter = maxPosition + 1;
+	const now = new Date();
+
+	for (const mapping of columnMappings) {
+		if (mapping.type !== 'new_trait') continue;
+		if (seenOriginalKeys.has(mapping.key)) continue;
+		seenOriginalKeys.add(mapping.key);
+
+		let resolvedKey = mapping.key;
+		let suffix = 2;
+		while (existingKeySet.has(resolvedKey) || resolvedNewKeys.has(resolvedKey)) {
+			resolvedKey = `${mapping.key}_${suffix++}`;
+		}
+		resolvedNewKeys.add(resolvedKey);
+
+		newTraitDefs.push({
+			id: crypto.randomUUID(),
+			originalKey: mapping.key,
+			resolvedKey,
+			label: mapping.label,
+			valueType: mapping.valueType,
+			position: posCounter++
+		});
+	}
+
+	// Insert new trait definitions in one transaction
+	if (newTraitDefs.length > 0) {
+		db.transaction((tx) => {
+			tx.insert(universeTraitDefinitions)
+				.values(
+					newTraitDefs.map((d) => ({
+						id: d.id,
+						universeId,
+						key: d.resolvedKey,
+						label: d.label,
+						description: '',
+						valueType: d.valueType,
+						category: '',
+						optionsJson: '[]',
+						isRequired: false,
+						position: d.position,
+						createdAt: now,
+						updatedAt: now
+					}))
+				)
+				.run();
+		});
+	}
+
+	// Resolve column mappings: replace new_trait entries with their actual trait key
+	const newTraitKeyMap = new Map(newTraitDefs.map((d) => [d.originalKey, d.resolvedKey]));
+	type ResolvedMapping = { type: 'skip' } | { type: 'name' } | { type: 'trait'; key: string };
+	const resolvedMappings: ResolvedMapping[] = columnMappings.map((m) => {
+		if (m.type === 'new_trait') {
+			const key = newTraitKeyMap.get(m.key);
+			return key ? { type: 'trait', key } : { type: 'skip' };
+		}
+		return m as ResolvedMapping;
+	});
+
+	// Build full key → definition ID lookup (existing + new)
+	const defKeyToId = new Map<string, string>();
+	for (const def of existingDefs) defKeyToId.set(def.key, def.id);
+	for (const def of newTraitDefs) defKeyToId.set(def.resolvedKey, def.id);
+
+	// Load existing character names for duplicate detection
+	const existingCharNames = new Set(
+		db
+			.select({ name: characters.name })
+			.from(characters)
+			.where(and(eq(characters.universeId, universeId), eq(characters.ownerId, userId)))
+			.all()
+			.map((c) => c.name.toLowerCase())
+	);
+
+	const failed: { row: number; reason: string }[] = [];
+	let imported = 0;
+	const importedNames = new Set<string>();
+
+	for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+		const row = rows[rowIndex];
+		const rowNum = rowIndex + 2; // 1-indexed, row 1 is the header
+
+		// Build character name from all name-mapped columns (in column order)
+		const nameParts: string[] = [];
+		for (let col = 0; col < resolvedMappings.length; col++) {
+			if (resolvedMappings[col].type === 'name') {
+				const val = (row[col] ?? '').trim();
+				if (val) nameParts.push(val);
+			}
+		}
+		const name = nameParts.join(' ').trim();
+
+		if (!name) {
+			failed.push({ row: rowNum, reason: 'Character name is empty.' });
+			continue;
+		}
+
+		const nameLower = name.toLowerCase();
+		if (existingCharNames.has(nameLower) || importedNames.has(nameLower)) {
+			failed.push({ row: rowNum, reason: `A character named "${name}" already exists.` });
+			continue;
+		}
+
+		// Collect trait values for this row
+		const traitRows: { traitDefinitionId: string; value: string }[] = [];
+		for (let col = 0; col < resolvedMappings.length; col++) {
+			const m = resolvedMappings[col];
+			if (m.type === 'trait') {
+				const value = (row[col] ?? '').trim();
+				const defId = defKeyToId.get(m.key);
+				if (defId && value) {
+					traitRows.push({ traitDefinitionId: defId, value });
+				}
+			}
+		}
+
+		try {
+			const characterId = crypto.randomUUID();
+			db.transaction((tx) => {
+				tx.insert(characters)
+					.values({
+						id: characterId,
+						ownerId: userId,
+						universeId,
+						name,
+						summary: '',
+						bioMarkdown: '',
+						createdAt: now,
+						updatedAt: now
+					})
+					.run();
+
+				if (traitRows.length > 0) {
+					tx.insert(characterTraitValues)
+						.values(
+							traitRows.map((tv) => ({
+								characterId,
+								traitDefinitionId: tv.traitDefinitionId,
+								value: tv.value,
+								createdAt: now,
+								updatedAt: now
+							}))
+						)
+						.run();
+				}
+			});
+
+			importedNames.add(nameLower);
+			imported++;
+		} catch (err) {
+			failed.push({
+				row: rowNum,
+				reason: `Failed to insert: ${err instanceof Error ? err.message : 'Unknown error'}`
+			});
+		}
+	}
+
+	return { imported, failed };
 }
 
 function normalizeTraitDefinitions(definitions: TraitDefinitionInput[]) {
