@@ -40,6 +40,7 @@ There is no single-test flag from vitest by default; pass a file path: `pnpm tes
 `src/lib/server/db/index.ts` initializes the SQLite connection (WAL mode, foreign keys ON) and resolves storage paths from env. The Drizzle instance (`db`) is the single shared client.
 
 **Application schema** is in `src/lib/server/db/schema.ts`:
+
 - `universes` → `universe_trait_definitions` → `character_trait_values`
 - `universes` → `characters` → `character_trait_values`, `character_images`
 - `images` → `character_images`

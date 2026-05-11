@@ -138,10 +138,9 @@
 										value={restoredValue(trait.key)}
 									/>
 								{:else if trait.valueType === 'paragraph'}
-									<textarea
-										class="forge-textarea"
-										name="trait:{trait.key}"
-									>{restoredValue(trait.key)}</textarea>
+									<textarea class="forge-textarea" name="trait:{trait.key}"
+										>{restoredValue(trait.key)}</textarea
+									>
 								{:else}
 									<input
 										class="forge-input"

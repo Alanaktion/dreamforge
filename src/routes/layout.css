@@ -54,7 +54,7 @@
 		@apply text-surface-500 dark:text-surface-400;
 	}
 	.forge-textarea {
-		@apply min-h-36;
+		@apply min-h-24;
 	}
 
 	.forge-badge {
@@ -64,6 +64,26 @@
 	.forge-link,
 	.markdown a {
 		@apply text-primary-700 underline decoration-primary-300 underline-offset-4 transition hover:text-primary-900;
+	}
+
+	.forge-table {
+		@apply w-full text-sm;
+	}
+
+	.forge-table thead th {
+		@apply border-b border-surface-200 px-4 py-3 text-left text-xs font-semibold tracking-[0.16em] text-surface-500 uppercase dark:border-surface-700;
+	}
+
+	.forge-table tbody tr {
+		@apply border-b border-surface-100 last:border-0 dark:border-surface-800;
+	}
+
+	.forge-table tbody td {
+		@apply px-4 py-3 align-middle;
+	}
+
+	.forge-table tbody tr.forge-table-editing {
+		@apply bg-primary-50/50 dark:bg-primary-950/25;
 	}
 
 	.forge-card-grid {

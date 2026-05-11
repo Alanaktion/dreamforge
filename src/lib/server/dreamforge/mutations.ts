@@ -167,6 +167,28 @@ export function createCharacter(userId: string, input: CharacterInput) {
 	return characterId;
 }
 
+export function updateCharacterBasic(
+	userId: string,
+	characterId: string,
+	input: { name: string; summary: string }
+) {
+	const name = input.name.trim();
+
+	if (!name) {
+		throw new DreamForgeError('Character name is required.');
+	}
+
+	const result = db
+		.update(characters)
+		.set({ name, summary: input.summary.trim(), updatedAt: new Date() })
+		.where(and(eq(characters.id, characterId), eq(characters.ownerId, userId)))
+		.run();
+
+	if (result.changes === 0) {
+		throw new DreamForgeError('Character not found.', 404);
+	}
+}
+
 export function updateCharacter(userId: string, characterId: string, input: CharacterInput) {
 	const name = input.name.trim();
 
@@ -225,7 +247,10 @@ export function updateCharacter(userId: string, characterId: string, input: Char
 						updatedAt: now
 					})
 					.onConflictDoUpdate({
-						target: [characterTraitValues.characterId, characterTraitValues.traitDefinitionId],
+						target: [
+							characterTraitValues.characterId,
+							characterTraitValues.traitDefinitionId
+						],
 						set: { value, updatedAt: now }
 					})
 					.run();

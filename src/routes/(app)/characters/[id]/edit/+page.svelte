@@ -35,7 +35,9 @@
 <section class="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
 	<form class="forge-panel space-y-5 p-8" method="POST">
 		<div>
-			<a class="forge-link text-sm" href="/characters/{data.character.id}">← Back to character</a>
+			<a class="forge-link text-sm" href="/characters/{data.character.id}"
+				>← Back to character</a
+			>
 			<h2 class="mt-3 text-3xl font-semibold text-surface-950 dark:text-surface-50">
 				Edit character profile
 			</h2>
@@ -59,25 +61,24 @@
 			<textarea
 				class="forge-textarea"
 				name="summary"
-				placeholder="A concise card view summary.">{form?.values?.summary ?? data.character.summary}</textarea
+				placeholder="A concise card view summary."
+				>{form?.values?.summary ?? data.character.summary}</textarea
 			>
 		</label>
 
 		<label class="block space-y-2">
-			<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
-				>Bio markdown</span
-			>
+			<span class="text-sm font-medium text-surface-800 dark:text-surface-200"> Bio </span>
 			<textarea
-				class="forge-textarea font-mono text-sm"
+				class="forge-textarea text-sm"
 				name="bioMarkdown"
-				placeholder="# Early life&#10;&#10;Write the long-form biography here."
+				placeholder="Write the long-form biography here."
 				>{form?.values?.bioMarkdown ?? data.character.bioMarkdown}</textarea
 			>
 		</label>
 
 		{#if data.traitValues.length > 0}
 			<div class="space-y-4">
-				<span class="text-sm font-medium text-surface-800 dark:text-surface-200">Traits</span>
+				<span class="forge-badge">Traits</span>
 
 				{#each traitsByCategory as [category, traits] (category)}
 					<div class="space-y-3">
@@ -90,7 +91,8 @@
 						{/if}
 						{#each traits as trait (trait.id)}
 							<label class="block space-y-1">
-								<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
+								<span
+									class="text-sm font-medium text-surface-800 dark:text-surface-200"
 									>{trait.label}</span
 								>
 								{#if trait.description}
@@ -101,13 +103,11 @@
 										<option value="">— unset —</option>
 										<option
 											value="true"
-											selected={initialValue(trait) === 'true'}
-											>Yes</option
+											selected={initialValue(trait) === 'true'}>Yes</option
 										>
 										<option
 											value="false"
-											selected={initialValue(trait) === 'false'}
-											>No</option
+											selected={initialValue(trait) === 'false'}>No</option
 										>
 									</select>
 								{:else if trait.valueType === 'number'}
@@ -125,10 +125,9 @@
 										value={initialValue(trait)}
 									/>
 								{:else if trait.valueType === 'paragraph'}
-									<textarea
-										class="forge-textarea"
-										name="trait:{trait.key}"
-									>{initialValue(trait)}</textarea>
+									<textarea class="forge-textarea" name="trait:{trait.key}"
+										>{initialValue(trait)}</textarea
+									>
 								{:else}
 									<input
 										class="forge-input"

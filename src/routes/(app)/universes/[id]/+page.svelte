@@ -408,11 +408,9 @@
 			{/if}
 
 			<div class="flex gap-3">
-				<button
-					class="forge-button-ghost"
-					type="button"
-					onclick={addTrait}
-				>+ Add trait</button>
+				<button class="forge-button-ghost" type="button" onclick={addTrait}
+					>+ Add trait</button
+				>
 				<button class="forge-button flex-1" type="submit">Save trait schema</button>
 			</div>
 		</form>

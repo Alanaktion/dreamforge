@@ -2,7 +2,10 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { DreamForgeError, updateCharacter } from '$lib/server/dreamforge/mutations';
 import { parseTraitValuesFromFormData, requireString } from '$lib/server/dreamforge/forms';
-import { getCharacterDetailForUser, getUniverseWithTraitsForUser } from '$lib/server/dreamforge/queries';
+import {
+	getCharacterDetailForUser,
+	getUniverseWithTraitsForUser
+} from '$lib/server/dreamforge/queries';
 
 export const load: PageServerLoad = ({ locals, params }) => {
 	const detail = getCharacterDetailForUser(locals.user!.id, params.id);
