@@ -1,16 +1,53 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getCharactersForUser, getUniversesForUser } from '$lib/server/dreamforge/queries';
+import {
+	getCharactersForUser,
+	getCharactersWithTraitsForUniverse,
+	getUniversesForUser
+} from '$lib/server/dreamforge/queries';
 import {
 	createCharacter,
 	DreamForgeError,
 	updateCharacterBasic
 } from '$lib/server/dreamforge/mutations';
 
-export const load: PageServerLoad = ({ locals }) => ({
-	characters: getCharactersForUser(locals.user!.id),
-	universes: getUniversesForUser(locals.user!.id)
-});
+function collectTraitValues(formData: FormData): Record<string, string> {
+	const values: Record<string, string> = {};
+	for (const [key, val] of formData.entries()) {
+		if (key.startsWith('trait:')) {
+			values[key.slice(6)] = val.toString().trim();
+		}
+	}
+	return values;
+}
+
+export const load: PageServerLoad = ({ locals, url }) => {
+	const userId = locals.user!.id;
+	const universes = getUniversesForUser(userId);
+	const selectedUniverseId = url.searchParams.get('universe') ?? null;
+
+	if (selectedUniverseId) {
+		const filtered = getCharactersWithTraitsForUniverse(userId, selectedUniverseId);
+		return {
+			universes,
+			selectedUniverseId,
+			traitDefinitions: filtered?.traitDefinitions ?? [],
+			characters: filtered?.characters ?? []
+		};
+	}
+
+	return {
+		universes,
+		selectedUniverseId,
+		traitDefinitions: [] as NonNullable<
+			ReturnType<typeof getCharactersWithTraitsForUniverse>
+		>['traitDefinitions'],
+		characters: getCharactersForUser(userId).map((c) => ({
+			...c,
+			traitValues: {} as Record<string, string>
+		}))
+	};
+};
 
 export const actions: Actions = {
 	create: async ({ locals, request }) => {
@@ -18,13 +55,19 @@ export const actions: Actions = {
 		const universeId = formData.get('universeId')?.toString().trim() ?? '';
 		const name = formData.get('name')?.toString().trim() ?? '';
 		const summary = formData.get('summary')?.toString().trim() ?? '';
+		const traitValues = collectTraitValues(formData);
 
 		try {
 			if (!universeId) throw new DreamForgeError('Universe is required.');
 			if (!name) throw new DreamForgeError('Character name is required.');
 
-			createCharacter(locals.user!.id, { universeId, name, summary });
-			return { action: 'create' as const, success: true };
+			createCharacter(locals.user!.id, {
+				universeId,
+				name,
+				summary,
+				traitValues: Object.keys(traitValues).length ? traitValues : undefined
+			});
+			return { action: 'create' as const, success: true as const };
 		} catch (err) {
 			if (err instanceof DreamForgeError) {
 				return fail(err.status, {
@@ -42,12 +85,17 @@ export const actions: Actions = {
 		const characterId = formData.get('characterId')?.toString().trim() ?? '';
 		const name = formData.get('name')?.toString().trim() ?? '';
 		const summary = formData.get('summary')?.toString().trim() ?? '';
+		const traitValues = collectTraitValues(formData);
 
 		try {
 			if (!characterId) throw new DreamForgeError('Character ID is required.');
 
-			updateCharacterBasic(locals.user!.id, characterId, { name, summary });
-			return { action: 'update' as const, success: true, characterId };
+			updateCharacterBasic(locals.user!.id, characterId, {
+				name,
+				summary,
+				traitValues: Object.keys(traitValues).length ? traitValues : undefined
+			});
+			return { action: 'update' as const, success: true as const, characterId };
 		} catch (err) {
 			if (err instanceof DreamForgeError) {
 				return fail(err.status, {

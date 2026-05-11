@@ -170,7 +170,7 @@ export function createCharacter(userId: string, input: CharacterInput) {
 export function updateCharacterBasic(
 	userId: string,
 	characterId: string,
-	input: { name: string; summary: string }
+	input: { name: string; summary: string; traitValues?: Record<string, string> }
 ) {
 	const name = input.name.trim();
 
@@ -178,14 +178,76 @@ export function updateCharacterBasic(
 		throw new DreamForgeError('Character name is required.');
 	}
 
-	const result = db
-		.update(characters)
-		.set({ name, summary: input.summary.trim(), updatedAt: new Date() })
+	const character = db
+		.select()
+		.from(characters)
 		.where(and(eq(characters.id, characterId), eq(characters.ownerId, userId)))
-		.run();
+		.get();
 
-	if (result.changes === 0) {
+	if (!character) {
 		throw new DreamForgeError('Character not found.', 404);
+	}
+
+	const now = new Date();
+
+	if (input.traitValues !== undefined) {
+		const definitions = db
+			.select()
+			.from(universeTraitDefinitions)
+			.where(eq(universeTraitDefinitions.universeId, character.universeId))
+			.all();
+
+		const definitionMap = new Map(definitions.map((d) => [d.key, d]));
+
+		for (const key of Object.keys(input.traitValues)) {
+			if (!definitionMap.has(key)) {
+				throw new DreamForgeError(`Unknown trait key: ${key}`);
+			}
+		}
+
+		db.transaction((tx) => {
+			tx.update(characters)
+				.set({ name, summary: input.summary.trim(), updatedAt: now })
+				.where(eq(characters.id, characterId))
+				.run();
+
+			for (const def of definitions) {
+				const value = input.traitValues![def.key]?.trim() ?? '';
+
+				if (value) {
+					tx.insert(characterTraitValues)
+						.values({
+							characterId,
+							traitDefinitionId: def.id,
+							value,
+							createdAt: now,
+							updatedAt: now
+						})
+						.onConflictDoUpdate({
+							target: [
+								characterTraitValues.characterId,
+								characterTraitValues.traitDefinitionId
+							],
+							set: { value, updatedAt: now }
+						})
+						.run();
+				} else {
+					tx.delete(characterTraitValues)
+						.where(
+							and(
+								eq(characterTraitValues.characterId, characterId),
+								eq(characterTraitValues.traitDefinitionId, def.id)
+							)
+						)
+						.run();
+				}
+			}
+		});
+	} else {
+		db.update(characters)
+			.set({ name, summary: input.summary.trim(), updatedAt: now })
+			.where(and(eq(characters.id, characterId), eq(characters.ownerId, userId)))
+			.run();
 	}
 }
 

@@ -71,7 +71,7 @@
 	}
 
 	.forge-table thead th {
-		@apply border-b border-surface-200 px-4 py-3 text-left text-xs font-semibold tracking-[0.16em] text-surface-500 uppercase dark:border-surface-700;
+		@apply border-b border-surface-200 px-3 py-2 text-left text-xs font-semibold tracking-[0.16em] whitespace-nowrap text-surface-500 uppercase dark:border-surface-700;
 	}
 
 	.forge-table tbody tr {
@@ -79,7 +79,7 @@
 	}
 
 	.forge-table tbody td {
-		@apply px-4 py-3 align-middle;
+		@apply px-3 py-2 align-middle text-sm;
 	}
 
 	.forge-table tbody tr.forge-table-editing {

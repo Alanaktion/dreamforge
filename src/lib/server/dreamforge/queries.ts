@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import {
 	characterImages,
@@ -98,6 +98,70 @@ export function getCharactersForUser(userId: string) {
 		.where(eq(characters.ownerId, userId))
 		.orderBy(desc(characters.updatedAt), asc(characters.name))
 		.all();
+}
+
+export function getCharactersWithTraitsForUniverse(userId: string, universeId: string) {
+	const universe = db
+		.select()
+		.from(universes)
+		.where(and(eq(universes.id, universeId), eq(universes.ownerId, userId)))
+		.get();
+
+	if (!universe) return null;
+
+	const traitDefinitions = db
+		.select()
+		.from(universeTraitDefinitions)
+		.where(eq(universeTraitDefinitions.universeId, universeId))
+		.orderBy(asc(universeTraitDefinitions.position), asc(universeTraitDefinitions.label))
+		.all();
+
+	const chars = db
+		.select()
+		.from(characters)
+		.where(and(eq(characters.universeId, universeId), eq(characters.ownerId, userId)))
+		.orderBy(asc(characters.name))
+		.all();
+
+	if (!chars.length) {
+		return { universe, traitDefinitions, characters: [] as ReturnType<typeof buildCharRow>[] };
+	}
+
+	const charIds = chars.map((c) => c.id);
+
+	const allTraitValues = db
+		.select({
+			characterId: characterTraitValues.characterId,
+			traitDefinitionId: characterTraitValues.traitDefinitionId,
+			value: characterTraitValues.value
+		})
+		.from(characterTraitValues)
+		.where(inArray(characterTraitValues.characterId, charIds))
+		.all();
+
+	const traitMap = new Map<string, Map<string, string>>();
+	for (const tv of allTraitValues) {
+		if (!traitMap.has(tv.characterId)) traitMap.set(tv.characterId, new Map());
+		traitMap.get(tv.characterId)!.set(tv.traitDefinitionId, tv.value);
+	}
+
+	function buildCharRow(c: (typeof chars)[number]) {
+		return {
+			id: c.id,
+			name: c.name,
+			summary: c.summary,
+			bioMarkdown: c.bioMarkdown,
+			createdAt: c.createdAt,
+			updatedAt: c.updatedAt,
+			universeId: c.universeId,
+			universeName: universe!.name,
+			traitValues: Object.fromEntries(
+				traitDefinitions.map((td) => [td.key, traitMap.get(c.id)?.get(td.id) ?? ''])
+			) as Record<string, string>
+		};
+	}
+
+	return { universe, traitDefinitions, characters: chars.map(buildCharRow) };
 }
 
 export function getCharacterDetailForUser(userId: string, characterId: string) {
