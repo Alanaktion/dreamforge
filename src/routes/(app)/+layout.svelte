@@ -21,7 +21,7 @@
 		<div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
 			<div class="space-y-3">
 				<div class="flex items-center gap-3">
-					<Forge class="size-5" />
+					<Forge class="size-5 fill-current text-primary-950 dark:text-primary-100" />
 					<span class="forge-badge hidden 2xl:block">DreamForge</span>
 					<nav class="flex flex-wrap gap-3">
 						{#each navItems as item (item.href)}

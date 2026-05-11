@@ -269,13 +269,13 @@
 							{#if !data.selectedUniverseId}
 								<th class="w-32">Universe</th>
 							{/if}
-							<th class="sticky left-0 bg-surface-50 dark:bg-surface-900 min-w-36">Name</th>
+							<th class="sticky left-0 bg-surface-50 dark:bg-surface-900 min-w-36 lg:min-w-40">Name</th>
 							<th class="min-w-48">Summary</th>
 							{#each data.traitDefinitions as td (td.id)}
 								<th class="min-w-28">{td.label}</th>
 							{/each}
 							<th class="w-24">Updated</th>
-							<th class="sticky right-0 bg-surface-50 dark:bg-surface-900 w-40">Actions</th>
+							<th class="sticky right-0 bg-surface-50 dark:bg-surface-900 w-32 lg:min-w-40">Actions</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -356,7 +356,7 @@
 									</td>
 								{/each}
 								<td class="text-xs text-surface-400">—</td>
-								<td>
+								<td class="sticky right-0 bg-surface-50 dark:bg-surface-900">
 									<div class="flex flex-wrap items-center gap-1.5">
 										<button
 											class="forge-button px-3 py-1 text-xs"
@@ -467,12 +467,6 @@
 											>
 												Cancel
 											</button>
-											<a
-												class="forge-link text-xs"
-												href={`/characters/${character.id}/edit`}
-											>
-												Full edit ↗
-											</a>
 										</div>
 										{#if rowError(character.id)}
 											<p class="mt-1 text-xs text-error-600">
@@ -527,12 +521,6 @@
 											>
 												Edit
 											</button>
-											<a
-												class="forge-link text-xs"
-												href={`/characters/${character.id}`}
-											>
-												Open ↗
-											</a>
 										</div>
 									</td>
 								</tr>
