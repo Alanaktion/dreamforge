@@ -54,8 +54,8 @@
 			Create a new universe.
 		</h2>
 		<p class="max-w-2xl text-base leading-7 text-surface-700 dark:text-surface-300">
-			Trait definitions live at the universe level. Add as many as you need — none are required
-			to fill in on individual characters.
+			Trait definitions live at the universe level. Add as many as you need — none are
+			required to fill in on individual characters.
 		</p>
 
 		<div class="space-y-4">
@@ -64,8 +64,8 @@
 					Categories
 				</h3>
 				<p class="mt-2 text-sm leading-6 text-surface-700 dark:text-surface-300">
-					Group related traits with an optional category name (e.g. personality, appearance,
-					history). Leave blank to show traits ungrouped.
+					Group related traits with an optional category name (e.g. personality,
+					appearance, history). Leave blank to show traits ungrouped.
 				</p>
 			</article>
 			<article class="forge-stat">
@@ -73,8 +73,8 @@
 					Trait key
 				</h3>
 				<p class="mt-2 text-sm leading-6 text-surface-700 dark:text-surface-300">
-					The key is a stable identifier used internally. It is auto-generated from the label
-					but can be edited. It cannot be changed after characters are created.
+					The key is a stable identifier used internally. It is auto-generated from the
+					label but can be edited. It cannot be changed after characters are created.
 				</p>
 			</article>
 		</div>
@@ -84,7 +84,9 @@
 		<input type="hidden" name="traitDefinitions" value={traitDefinitionsJson} />
 
 		<label class="block space-y-2">
-			<span class="text-sm font-medium text-surface-800 dark:text-surface-200">Universe name</span>
+			<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
+				>Universe name</span
+			>
 			<input
 				class="forge-input"
 				name="name"
@@ -96,7 +98,10 @@
 
 		<label class="block space-y-2">
 			<span class="text-sm font-medium text-surface-800 dark:text-surface-200">Summary</span>
-			<textarea class="forge-textarea" name="summary" placeholder="A one-paragraph orientation for this setting."
+			<textarea
+				class="forge-textarea"
+				name="summary"
+				placeholder="A one-paragraph orientation for this setting."
 				>{form?.values?.summary ?? ''}</textarea
 			>
 		</label>
@@ -136,7 +141,8 @@
 							</div>
 							<div class="grid gap-3 sm:grid-cols-2">
 								<label class="block space-y-1">
-									<span class="text-xs font-medium text-surface-700 dark:text-surface-300"
+									<span
+										class="text-xs font-medium text-surface-700 dark:text-surface-300"
 										>Label <span class="text-error-500">*</span></span
 									>
 									<input
@@ -148,7 +154,8 @@
 									/>
 								</label>
 								<label class="block space-y-1">
-									<span class="text-xs font-medium text-surface-700 dark:text-surface-300"
+									<span
+										class="text-xs font-medium text-surface-700 dark:text-surface-300"
 										>Key <span class="text-error-500">*</span></span
 									>
 									<input
@@ -159,7 +166,8 @@
 									/>
 								</label>
 								<label class="block space-y-1">
-									<span class="text-xs font-medium text-surface-700 dark:text-surface-300"
+									<span
+										class="text-xs font-medium text-surface-700 dark:text-surface-300"
 										>Category</span
 									>
 									<input
@@ -169,17 +177,22 @@
 									/>
 								</label>
 								<label class="block space-y-1">
-									<span class="text-xs font-medium text-surface-700 dark:text-surface-300"
+									<span
+										class="text-xs font-medium text-surface-700 dark:text-surface-300"
 										>Value type</span
 									>
-									<select class="forge-select text-sm" bind:value={trait.valueType}>
+									<select
+										class="forge-select text-sm"
+										bind:value={trait.valueType}
+									>
 										<option value="text">Text</option>
 										<option value="number">Number</option>
 										<option value="boolean">Boolean</option>
 									</select>
 								</label>
 								<label class="block space-y-1 sm:col-span-2">
-									<span class="text-xs font-medium text-surface-700 dark:text-surface-300"
+									<span
+										class="text-xs font-medium text-surface-700 dark:text-surface-300"
 										>Description</span
 									>
 									<input

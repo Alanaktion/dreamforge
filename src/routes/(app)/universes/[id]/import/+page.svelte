@@ -105,7 +105,8 @@
 			columns.every(
 				(c) =>
 					c.selectValue !== 'new_trait' ||
-					(c.newLabel.trim().length > 0 && (c.newKey || generateKey(c.newLabel)).length > 0)
+					(c.newLabel.trim().length > 0 &&
+						(c.newKey || generateKey(c.newLabel)).length > 0)
 			)
 	);
 </script>
@@ -123,8 +124,9 @@
 			Import from CSV
 		</h2>
 		<p class="mt-2 max-w-2xl text-sm leading-6 text-surface-700 dark:text-surface-300">
-			Upload a CSV file to import characters into <strong>{data.universe.name}</strong>. The first
-			row must be a header row. You'll map each column to a character field before importing.
+			Upload a CSV file to import characters into <strong>{data.universe.name}</strong>. The
+			first row must be a header row. You'll map each column to a character field before
+			importing.
 		</p>
 	</div>
 
@@ -163,7 +165,7 @@
 			</a>
 		</div>
 
-	<!-- ── Step: map ──────────────────────────────────────────────────────── -->
+		<!-- ── Step: map ──────────────────────────────────────────────────────── -->
 	{:else if form?.step === 'map'}
 		<div class="space-y-6">
 			<!-- Summary counts -->
@@ -209,11 +211,11 @@
 					<thead>
 						<tr class="border-b border-surface-200 dark:border-surface-800">
 							<th
-								class="pb-3 pr-4 text-left text-xs font-semibold tracking-[0.1em] text-surface-500 uppercase"
+								class="pr-4 pb-3 text-left text-xs font-semibold tracking-[0.1em] text-surface-500 uppercase"
 								>Column</th
 							>
 							<th
-								class="pb-3 pr-4 text-left text-xs font-semibold tracking-[0.1em] text-surface-500 uppercase"
+								class="pr-4 pb-3 text-left text-xs font-semibold tracking-[0.1em] text-surface-500 uppercase"
 								>Sample values</th
 							>
 							<th
@@ -226,7 +228,9 @@
 						{#each form.headers as header, i}
 							{@const col = columns[i]}
 							<tr class="align-top">
-								<td class="py-3 pr-4 font-medium text-surface-900 dark:text-surface-100">
+								<td
+									class="py-3 pr-4 font-medium text-surface-900 dark:text-surface-100"
+								>
 									{#if header}
 										{header}
 									{:else}
@@ -236,34 +240,45 @@
 								<td class="py-3 pr-4 text-surface-600 dark:text-surface-400">
 									{#each form.sampleRows as row}
 										{#if row[i]}
-											<div class="truncate max-w-[200px]">{row[i]}</div>
+											<div class="max-w-[200px] truncate">{row[i]}</div>
 										{/if}
 									{/each}
 								</td>
 								<td class="py-3">
 									{#if col}
 										<div class="space-y-2">
-											<select class="forge-select text-sm" bind:value={col.selectValue}>
+											<select
+												class="forge-select text-sm"
+												bind:value={col.selectValue}
+											>
 												<option value="skip">Skip this column</option>
 												<option value="name">Character name</option>
 												<option value="summary">Character summary</option>
-												<option value="bio">Character bio (Markdown)</option>
+												<option value="bio">Character bio (Markdown)</option
+												>
 												{#each data.traitDefinitions as trait}
 													<option value="trait:{trait.key}"
 														>{trait.label}
-														{trait.category ? `(${trait.category})` : ''}</option
+														{trait.category
+															? `(${trait.category})`
+															: ''}</option
 													>
 												{/each}
-												<option value="new_trait">+ Create new trait…</option>
+												<option value="new_trait"
+													>+ Create new trait…</option
+												>
 											</select>
 
 											{#if col.selectValue === 'new_trait'}
 												<div
-													class="grid gap-2 rounded-xl border border-surface-200 p-3 dark:border-surface-700 sm:grid-cols-3"
+													class="grid gap-2 rounded-xl border border-surface-200 p-3 sm:grid-cols-3 dark:border-surface-700"
 												>
 													<label class="block space-y-1">
-														<span class="text-xs font-medium text-surface-600 dark:text-surface-400"
-															>Label <span class="text-error-500">*</span></span
+														<span
+															class="text-xs font-medium text-surface-600 dark:text-surface-400"
+															>Label <span class="text-error-500"
+																>*</span
+															></span
 														>
 														<input
 															class="forge-input text-sm"
@@ -273,8 +288,11 @@
 														/>
 													</label>
 													<label class="block space-y-1">
-														<span class="text-xs font-medium text-surface-600 dark:text-surface-400"
-															>Key <span class="text-error-500">*</span></span
+														<span
+															class="text-xs font-medium text-surface-600 dark:text-surface-400"
+															>Key <span class="text-error-500"
+																>*</span
+															></span
 														>
 														<input
 															class="forge-input font-mono text-sm"
@@ -284,12 +302,18 @@
 														/>
 													</label>
 													<label class="block space-y-1">
-														<span class="text-xs font-medium text-surface-600 dark:text-surface-400"
+														<span
+															class="text-xs font-medium text-surface-600 dark:text-surface-400"
 															>Type</span
 														>
-														<select class="forge-select text-sm" bind:value={col.newValueType}>
+														<select
+															class="forge-select text-sm"
+															bind:value={col.newValueType}
+														>
 															<option value="text">Text</option>
-															<option value="paragraph">Paragraph</option>
+															<option value="paragraph"
+																>Paragraph</option
+															>
 															<option value="number">Number</option>
 															<option value="boolean">Boolean</option>
 															<option value="date">Date</option>
@@ -315,7 +339,7 @@
 			</form>
 		</div>
 
-	<!-- ── Step: upload ───────────────────────────────────────────────────── -->
+		<!-- ── Step: upload ───────────────────────────────────────────────────── -->
 	{:else}
 		<div class="forge-panel space-y-5 p-6">
 			{#if form?.message}
@@ -327,12 +351,8 @@
 			{/if}
 
 			<div class="space-y-2">
-				<p class="text-sm text-surface-700 dark:text-surface-300">
-					CSV requirements:
-				</p>
-				<ul
-					class="list-disc space-y-1 pl-5 text-sm text-surface-600 dark:text-surface-400"
-				>
+				<p class="text-sm text-surface-700 dark:text-surface-300">CSV requirements:</p>
+				<ul class="list-disc space-y-1 pl-5 text-sm text-surface-600 dark:text-surface-400">
 					<li>First row must be column headers</li>
 					<li>Columns are mapped to character name and traits in the next step</li>
 					<li>Quoted fields, commas in values, and multi-line cells are supported</li>
@@ -345,7 +365,13 @@
 					<span class="text-sm font-medium text-surface-800 dark:text-surface-200"
 						>CSV file <span class="text-error-500">*</span></span
 					>
-					<input class="forge-input" type="file" name="file" accept=".csv,text/csv" required />
+					<input
+						class="forge-input"
+						type="file"
+						name="file"
+						accept=".csv,text/csv"
+						required
+					/>
 				</label>
 				<button class="forge-button w-full" type="submit">Upload and map columns</button>
 			</form>

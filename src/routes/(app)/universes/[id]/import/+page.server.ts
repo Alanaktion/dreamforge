@@ -203,7 +203,8 @@ export const actions: Actions = {
 		} catch (err) {
 			return fail(400, {
 				step: 'upload' as const,
-				message: err instanceof DreamForgeError ? err.message : 'Invalid column mapping data.'
+				message:
+					err instanceof DreamForgeError ? err.message : 'Invalid column mapping data.'
 			});
 		}
 

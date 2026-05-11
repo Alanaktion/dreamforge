@@ -41,8 +41,7 @@ export const load: PageServerLoad = ({ locals, params }) => {
 export const actions: Actions = {
 	create: async ({ locals, request, params }) => {
 		const formData = await request.formData();
-		const universeId =
-			formData.get('universeId')?.toString().trim() || params.universeId;
+		const universeId = formData.get('universeId')?.toString().trim() || params.universeId;
 		const name = formData.get('name')?.toString().trim() ?? '';
 		const summary = formData.get('summary')?.toString().trim() ?? '';
 		const traitValues = collectTraitValues(formData);

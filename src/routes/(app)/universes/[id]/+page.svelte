@@ -212,8 +212,7 @@
 					<div class="flex items-center gap-4">
 						<a
 							class="forge-link text-sm font-medium"
-							href={resolve(`/universes/${data.universe.id}/import`)}
-							>Import CSV</a
+							href={resolve(`/universes/${data.universe.id}/import`)}>Import CSV</a
 						>
 						<a
 							class="forge-link text-sm font-medium"

@@ -110,9 +110,7 @@
 		return null;
 	}
 
-	let createError = $derived(
-		form?.action === 'create' && form.message ? form.message : null
-	);
+	let createError = $derived(form?.action === 'create' && form.message ? form.message : null);
 </script>
 
 <!-- Universe filter bar -->
@@ -141,7 +139,8 @@
 		{/each}
 	</div>
 	{#if !selectedUniverseId && traitDefinitions.length === 0}
-		<span class="ml-auto text-xs text-surface-400">Select a universe to show trait columns</span>
+		<span class="ml-auto text-xs text-surface-400">Select a universe to show trait columns</span
+		>
 	{/if}
 </div>
 
@@ -192,8 +191,7 @@
 					{#if !selectedUniverseId}
 						<th class="w-32">Universe</th>
 					{/if}
-					<th
-						class="sticky left-0 min-w-36 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
+					<th class="sticky left-0 min-w-36 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
 						>Name</th
 					>
 					<th class="min-w-48">Summary</th>
@@ -201,8 +199,7 @@
 						<th class="min-w-28">{td.label}</th>
 					{/each}
 					<th class="w-24">Updated</th>
-					<th
-						class="sticky right-0 w-32 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
+					<th class="sticky right-0 w-32 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
 						>Actions</th
 					>
 				</tr>
@@ -316,7 +313,8 @@
 						<tr class="forge-table-editing">
 							{#if !selectedUniverseId}
 								<td>
-									<span class="forge-badge text-xs">{character.universeName}</span>
+									<span class="forge-badge text-xs">{character.universeName}</span
+									>
 								</td>
 							{/if}
 							<td class="sticky left-0 bg-surface-50 dark:bg-surface-900">
@@ -407,7 +405,8 @@
 						<tr>
 							{#if !selectedUniverseId}
 								<td>
-									<span class="forge-badge text-xs">{character.universeName}</span>
+									<span class="forge-badge text-xs">{character.universeName}</span
+									>
 								</td>
 							{/if}
 							<td
@@ -449,10 +448,7 @@
 
 				{#if characters.length === 0 && !showCreateRow}
 					<tr>
-						<td
-							colspan={colCount}
-							class="py-10 text-center text-sm text-surface-400"
-						>
+						<td colspan={colCount} class="py-10 text-center text-sm text-surface-400">
 							{selectedUniverseId
 								? 'No characters in this universe yet.'
 								: 'No characters yet.'}

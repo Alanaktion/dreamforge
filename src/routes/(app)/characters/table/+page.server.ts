@@ -1,9 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import {
-	getCharactersForUser,
-	getUniversesForUser
-} from '$lib/server/dreamforge/queries';
+import { getCharactersForUser, getUniversesForUser } from '$lib/server/dreamforge/queries';
 import {
 	createCharacter,
 	DreamForgeError,
