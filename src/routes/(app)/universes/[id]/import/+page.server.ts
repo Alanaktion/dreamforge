@@ -45,6 +45,29 @@ function autoDetectMappings(
 		'middlename'
 	]);
 
+	const summaryPatterns = new Set([
+		'summary',
+		'description',
+		'desc',
+		'short description',
+		'short_description',
+		'overview',
+		'blurb'
+	]);
+
+	const bioPatterns = new Set([
+		'bio',
+		'biography',
+		'background',
+		'backstory',
+		'lore',
+		'bio_markdown',
+		'biomarkdown',
+		'bio markdown',
+		'notes',
+		'history'
+	]);
+
 	return headers.map((header, i) => {
 		const normalized = header.toLowerCase().trim();
 
@@ -53,6 +76,8 @@ function autoDetectMappings(
 		);
 		if (traitMatch) return { type: 'trait', key: traitMatch.key };
 
+		if (summaryPatterns.has(normalized)) return { type: 'summary' };
+		if (bioPatterns.has(normalized)) return { type: 'bio' };
 		if (i === 0 || namePatterns.has(normalized)) return { type: 'name' };
 
 		return { type: 'skip' };
@@ -76,6 +101,10 @@ function parseColumnMappings(raw: string): ColumnMapping[] {
 				return { type: 'skip' };
 			case 'name':
 				return { type: 'name' };
+			case 'summary':
+				return { type: 'summary' };
+			case 'bio':
+				return { type: 'bio' };
 			case 'trait':
 				if (typeof entry.key !== 'string' || !entry.key.trim())
 					throw new DreamForgeError('Trait mapping requires a key.');

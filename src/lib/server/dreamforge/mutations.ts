@@ -499,6 +499,8 @@ export function updateUniverseTraits(
 export type ColumnMapping =
 	| { type: 'skip' }
 	| { type: 'name' }
+	| { type: 'summary' }
+	| { type: 'bio' }
 	| { type: 'trait'; key: string }
 	| { type: 'new_trait'; label: string; key: string; valueType: TraitValueType };
 
@@ -594,7 +596,12 @@ export function importCharacters(
 
 	// Resolve column mappings: replace new_trait entries with their actual trait key
 	const newTraitKeyMap = new Map(newTraitDefs.map((d) => [d.originalKey, d.resolvedKey]));
-	type ResolvedMapping = { type: 'skip' } | { type: 'name' } | { type: 'trait'; key: string };
+	type ResolvedMapping =
+		| { type: 'skip' }
+		| { type: 'name' }
+		| { type: 'summary' }
+		| { type: 'bio' }
+		| { type: 'trait'; key: string };
 	const resolvedMappings: ResolvedMapping[] = columnMappings.map((m) => {
 		if (m.type === 'new_trait') {
 			const key = newTraitKeyMap.get(m.key);
@@ -628,13 +635,19 @@ export function importCharacters(
 
 		// Build character name from all name-mapped columns (in column order)
 		const nameParts: string[] = [];
+		const summaryParts: string[] = [];
+		const bioParts: string[] = [];
 		for (let col = 0; col < resolvedMappings.length; col++) {
-			if (resolvedMappings[col].type === 'name') {
-				const val = (row[col] ?? '').trim();
-				if (val) nameParts.push(val);
-			}
+			const m = resolvedMappings[col];
+			const val = (row[col] ?? '').trim();
+			if (!val) continue;
+			if (m.type === 'name') nameParts.push(val);
+			else if (m.type === 'summary') summaryParts.push(val);
+			else if (m.type === 'bio') bioParts.push(val);
 		}
 		const name = nameParts.join(' ').trim();
+		const summary = summaryParts.join('\n\n').trim();
+		const bioMarkdown = bioParts.join('\n\n').trim();
 
 		if (!name) {
 			failed.push({ row: rowNum, reason: 'Character name is empty.' });
@@ -669,8 +682,8 @@ export function importCharacters(
 						ownerId: userId,
 						universeId,
 						name,
-						summary: '',
-						bioMarkdown: '',
+						summary,
+						bioMarkdown,
 						createdAt: now,
 						updatedAt: now
 					})

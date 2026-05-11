@@ -10,6 +10,8 @@
 	type ColumnMapping =
 		| { type: 'skip' }
 		| { type: 'name' }
+		| { type: 'summary' }
+		| { type: 'bio' }
 		| { type: 'trait'; key: string }
 		| { type: 'new_trait'; label: string; key: string; valueType: TraitValueType };
 
@@ -31,19 +33,24 @@
 
 	function autoMappingToSelectValue(mapping: ColumnMapping): string {
 		if (mapping.type === 'name') return 'name';
+		if (mapping.type === 'summary') return 'summary';
+		if (mapping.type === 'bio') return 'bio';
 		if (mapping.type === 'trait') return `trait:${mapping.key}`;
 		return 'skip';
 	}
 
 	function buildColumnsFromForm(): ColumnState[] {
 		if (form?.step !== 'map') return [];
-		return (form.autoMappings as ColumnMapping[]).map((m) => ({
-			selectValue: autoMappingToSelectValue(m),
-			newLabel: '',
-			newKey: '',
-			newValueType: 'text' as TraitValueType,
-			autoKey: true
-		}));
+		return (form.autoMappings as ColumnMapping[]).map((m, i) => {
+			const headerLabel = form.headers[i] ?? '';
+			return {
+				selectValue: autoMappingToSelectValue(m),
+				newLabel: headerLabel,
+				newKey: generateKey(headerLabel),
+				newValueType: 'text' as TraitValueType,
+				autoKey: true
+			};
+		});
 	}
 
 	// Re-initialize columns whenever a new upload result arrives (tempFileId changes)
@@ -68,6 +75,8 @@
 	function buildColumnMappings(): ColumnMapping[] {
 		return columns.map((col): ColumnMapping => {
 			if (col.selectValue === 'name') return { type: 'name' };
+			if (col.selectValue === 'summary') return { type: 'summary' };
+			if (col.selectValue === 'bio') return { type: 'bio' };
 			if (col.selectValue.startsWith('trait:'))
 				return { type: 'trait', key: col.selectValue.slice(6) };
 			if (col.selectValue === 'new_trait')
@@ -237,6 +246,8 @@
 											<select class="forge-select text-sm" bind:value={col.selectValue}>
 												<option value="skip">Skip this column</option>
 												<option value="name">Character name</option>
+												<option value="summary">Character summary</option>
+												<option value="bio">Character bio (Markdown)</option>
 												{#each data.traitDefinitions as trait}
 													<option value="trait:{trait.key}"
 														>{trait.label}
