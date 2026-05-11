@@ -18,6 +18,7 @@
 				Edit traits here without touching individual character records.
 			</p>
 		</div>
+		<a class="forge-button shrink-0" href={resolve('/universes/create')}>New universe</a>
 	</div>
 
 	<div class="forge-card-grid">
