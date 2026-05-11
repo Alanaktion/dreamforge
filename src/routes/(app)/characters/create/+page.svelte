@@ -130,6 +130,18 @@
 										name="trait:{trait.key}"
 										value={restoredValue(trait.key)}
 									/>
+								{:else if trait.valueType === 'date'}
+									<input
+										class="forge-input"
+										type="date"
+										name="trait:{trait.key}"
+										value={restoredValue(trait.key)}
+									/>
+								{:else if trait.valueType === 'paragraph'}
+									<textarea
+										class="forge-textarea"
+										name="trait:{trait.key}"
+									>{restoredValue(trait.key)}</textarea>
 								{:else}
 									<input
 										class="forge-input"

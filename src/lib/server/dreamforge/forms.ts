@@ -45,8 +45,10 @@ export function parseTraitDefinitionsJson(raw: string): TraitDefinitionInput[] {
 			category: String(candidate.category ?? ''),
 			description: String(candidate.description ?? ''),
 			valueType:
+				candidate.valueType === 'paragraph' ||
 				candidate.valueType === 'number' ||
 				candidate.valueType === 'boolean' ||
+				candidate.valueType === 'date' ||
 				candidate.valueType === 'json'
 					? candidate.valueType
 					: 'text',

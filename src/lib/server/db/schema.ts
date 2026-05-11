@@ -9,7 +9,7 @@ import {
 } from 'drizzle-orm/sqlite-core';
 import { user } from './auth.schema';
 
-export type TraitValueType = 'text' | 'number' | 'boolean' | 'json';
+export type TraitValueType = 'text' | 'paragraph' | 'number' | 'boolean' | 'date' | 'json';
 
 const timestamps = {
 	createdAt: integer('created_at', { mode: 'timestamp_ms' })

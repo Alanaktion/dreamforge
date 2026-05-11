@@ -26,7 +26,7 @@
 		label: string;
 		category: string;
 		description: string;
-		valueType: 'text' | 'number' | 'boolean';
+		valueType: 'text' | 'paragraph' | 'number' | 'boolean' | 'date';
 		isExisting: boolean;
 		markedForRemoval: boolean;
 	};
@@ -40,7 +40,7 @@
 					label: string;
 					category: string;
 					description: string;
-					valueType: 'text' | 'number' | 'boolean';
+					valueType: 'text' | 'paragraph' | 'number' | 'boolean' | 'date';
 				}[];
 				const existingKeys = new Set(data.traitDefinitions.map((d) => d.key));
 				return parsed.map((t) => ({
@@ -58,7 +58,7 @@
 			label: d.label,
 			category: d.category,
 			description: d.description,
-			valueType: d.valueType as 'text' | 'number' | 'boolean',
+			valueType: d.valueType as 'text' | 'number' | 'boolean' | 'date',
 			isExisting: true,
 			markedForRemoval: false
 		}));
@@ -114,6 +114,10 @@
 	);
 
 	let removedCount = $derived(traits.filter((t) => t.markedForRemoval && t.isExisting).length);
+
+	let categoryOptions = $derived(
+		[...new Set(traits.map((t) => t.category).filter(Boolean))].sort()
+	);
 </script>
 
 <section class="space-y-8">
@@ -233,6 +237,11 @@
 
 		<form class="mt-6 space-y-4" method="POST" action="?/updateTraits">
 			<input type="hidden" name="traitDefinitions" value={traitDefinitionsJson} />
+			<datalist id="trait-categories">
+				{#each categoryOptions as cat (cat)}
+					<option value={cat}></option>
+				{/each}
+			</datalist>
 
 			{#if traits.length === 0}
 				<div class="forge-panel p-8 text-center">
@@ -286,7 +295,7 @@
 						</div>
 
 						{#if !trait.markedForRemoval}
-							<div class="grid gap-3 sm:grid-cols-2">
+							<div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
 								<label class="block space-y-1">
 									<span
 										class="text-xs font-medium text-surface-700 dark:text-surface-300"
@@ -328,6 +337,7 @@
 									<input
 										class="forge-input text-sm"
 										placeholder="e.g. personality, history…"
+										list="trait-categories"
 										bind:value={trait.category}
 									/>
 								</label>
@@ -342,11 +352,13 @@
 										disabled={trait.isExisting}
 									>
 										<option value="text">Text</option>
+										<option value="paragraph">Paragraph</option>
 										<option value="number">Number</option>
 										<option value="boolean">Boolean</option>
+										<option value="date">Date</option>
 									</select>
 								</label>
-								<label class="block space-y-1 sm:col-span-2">
+								<label class="block space-y-1 sm:col-span-2 lg:col-span-4">
 									<span
 										class="text-xs font-medium text-surface-700 dark:text-surface-300"
 										>Description</span
@@ -395,7 +407,14 @@
 				{/if}
 			{/if}
 
-			<button class="forge-button w-full" type="submit">Save trait schema</button>
+			<div class="flex gap-3">
+				<button
+					class="forge-button-ghost"
+					type="button"
+					onclick={addTrait}
+				>+ Add trait</button>
+				<button class="forge-button flex-1" type="submit">Save trait schema</button>
+			</div>
 		</form>
 	</div>
 </section>
