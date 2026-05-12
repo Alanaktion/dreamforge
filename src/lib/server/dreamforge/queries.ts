@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, like } from 'drizzle-orm';
 import { db } from '$lib/server/db';
 import {
 	characterImages,
@@ -258,4 +258,19 @@ export function getImageForUserByFilename(userId: string, filename: string) {
 		.from(images)
 		.where(and(eq(images.ownerId, userId), eq(images.filename, filename)))
 		.get();
+}
+
+export function searchCharactersByName(userId: string, query: string, limit = 10) {
+	return db
+		.select({
+			id: characters.id,
+			name: characters.name,
+			universeName: universes.name
+		})
+		.from(characters)
+		.innerJoin(universes, eq(characters.universeId, universes.id))
+		.where(and(eq(characters.ownerId, userId), like(characters.name, `%${query}%`)))
+		.orderBy(asc(characters.name))
+		.limit(limit)
+		.all();
 }

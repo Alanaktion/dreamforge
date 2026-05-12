@@ -4,6 +4,7 @@
 	import type { Pathname } from '$app/types';
 	import type { LayoutProps } from './$types';
 	import Forge from '$lib/assets/forge.svelte';
+	import CharacterSearch from '$lib/components/CharacterSearch.svelte';
 
 	let { children }: LayoutProps = $props();
 
@@ -19,7 +20,7 @@
 </script>
 
 <div class="mx-auto px-6 py-6 lg:px-10 lg:py-8">
-	<header class="forge-panel mb-8 overflow-hidden px-6 py-5">
+	<header class="forge-panel mb-8 px-6 py-5">
 		<div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 			<div class="space-y-3">
 				<div class="flex items-center gap-3">
@@ -47,9 +48,12 @@
 				</div>
 			</div>
 
-			<form action={resolve('/logout')} method="POST">
-				<button class="forge-button-ghost" type="submit">Sign out</button>
-			</form>
+			<div class="flex items-center gap-3">
+				<CharacterSearch />
+				<form action={resolve('/logout')} method="POST">
+					<button class="forge-button-ghost" type="submit">Sign out</button>
+				</form>
+			</div>
 		</div>
 	</header>
 

@@ -33,7 +33,7 @@
 
 @layer components {
 	.forge-panel {
-		@apply rounded-2xl border border-surface-300/70 bg-white/75 text-surface-900 shadow-lg backdrop-blur dark:border-surface-700/70 dark:bg-surface-900/70 dark:text-surface-100;
+		@apply rounded-2xl border border-surface-300/70 bg-white/75 text-surface-900 shadow-lg dark:border-surface-700/70 dark:bg-surface-900/70 dark:text-surface-100;
 	}
 
 	.forge-button {

@@ -330,6 +330,17 @@ export function updateCharacter(userId: string, characterId: string, input: Char
 	});
 }
 
+export function deleteCharacter(userId: string, characterId: string) {
+	const result = db
+		.delete(characters)
+		.where(and(eq(characters.id, characterId), eq(characters.ownerId, userId)))
+		.run();
+
+	if (result.changes === 0) {
+		throw new DreamForgeError('Character not found.', 404);
+	}
+}
+
 export function createImage(userId: string, input: ImageInput) {
 	const imageId = crypto.randomUUID();
 	const now = new Date();

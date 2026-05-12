@@ -30,10 +30,29 @@
 						>Created {data.character.createdAt.toLocaleDateString()}</span
 					>
 				</div>
-				<a
-					class="forge-button-ghost"
-					href={resolve(`/characters/${data.character.id}/edit`)}>Edit</a
-				>
+				<div class="flex items-center gap-2">
+					<a
+						class="forge-button-ghost"
+						href={resolve(`/characters/${data.character.id}/edit`)}>Edit</a
+					>
+					<form method="POST" action="?/delete">
+						<button
+							type="submit"
+							class="forge-button-ghost text-error-700 hover:text-error-800"
+							onclick={(event) => {
+								if (
+									!confirm(
+										`Delete ${data.character.name}? This cannot be undone.`
+									)
+								) {
+									event.preventDefault();
+								}
+							}}
+						>
+							Delete
+						</button>
+					</form>
+				</div>
 			</div>
 
 			<h2

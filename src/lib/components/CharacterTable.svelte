@@ -27,7 +27,7 @@
 	};
 
 	type FormResult = {
-		action: 'create' | 'update';
+		action: 'create' | 'update' | 'delete';
 		success?: boolean;
 		message?: string;
 		characterId?: string;
@@ -66,12 +66,6 @@
 		if (trait.valueType === 'boolean') return value === 'true' ? 'Yes' : 'No';
 		return value;
 	}
-
-	$effect(() => {
-		// Reset editing/create states when universe changes
-		editingId = null;
-		showCreateRow = false;
-	});
 
 	function startEdit(character: Character) {
 		showCreateRow = false;
@@ -173,18 +167,22 @@
 	>
 		<input type="hidden" name="characterId" value={character.id} />
 	</form>
+	<form id="form-delete-{character.id}" method="POST" action="?/delete" class="hidden">
+		<input type="hidden" name="characterId" value={character.id} />
+	</form>
 {/each}
 
 <!-- Table -->
 <div class="forge-panel overflow-clip">
 	<div class="overflow-x-auto overflow-y-clip">
 		<table class="forge-table">
-			<thead class="sticky top-0 bg-surface-50 dark:bg-surface-900 z-10">
+			<thead class="sticky top-0 z-10 bg-surface-50 dark:bg-surface-900">
 				<tr>
 					{#if !selectedUniverseId}
 						<th class="w-32">Universe</th>
 					{/if}
-					<th class={`sticky left-0 min-w-36 lg:min-w-40 2xl:min-w-48 ${selectedUniverseId ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200' : ''}`}
+					<th
+						class={`sticky left-0 min-w-36 lg:min-w-40 2xl:min-w-48 ${selectedUniverseId ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-200' : ''}`}
 						>Name</th
 					>
 					<th class="min-w-48">Summary</th>
@@ -192,7 +190,8 @@
 						<th class="min-w-28">{td.label}</th>
 					{/each}
 					<th class="w-24">Updated</th>
-					<th class="sticky right-0 w-32 bg-primary-50 lg:min-w-40 dark:bg-primary-900 text-primary-700 dark:text-primary-200"
+					<th
+						class="sticky right-0 w-32 bg-primary-50 text-primary-700 lg:min-w-40 dark:bg-primary-900 dark:text-primary-200"
 						>Actions</th
 					>
 				</tr>
@@ -310,7 +309,9 @@
 									>
 								</td>
 							{/if}
-							<td class={`sticky left-0 ${selectedUniverseId ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200' : ''}`}>
+							<td
+								class={`sticky left-0 ${selectedUniverseId ? 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-200' : ''}`}
+							>
 								<input
 									class="forge-input py-1 text-xs"
 									name="name"
@@ -402,7 +403,9 @@
 									>
 								</td>
 							{/if}
-							<td class={`sticky left-0 ${selectedUniverseId ? 'bg-primary-50/50 dark:bg-primary-900/50 text-primary-700 dark:text-primary-200' : ''}`}>
+							<td
+								class={`sticky left-0 ${selectedUniverseId ? 'bg-primary-50/50 text-primary-700 dark:bg-primary-900/50 dark:text-primary-200' : ''}`}
+							>
 								<a class="forge-link" href={resolve(`/characters/${character.id}`)}>
 									{character.name}
 								</a>
@@ -430,6 +433,22 @@
 										onclick={() => startEdit(character)}
 									>
 										Edit
+									</button>
+									<button
+										type="submit"
+										class="forge-button-ghost px-3 py-1 text-xs text-error-700 hover:text-error-800"
+										form="form-delete-{character.id}"
+										onclick={(event) => {
+											if (
+												!confirm(
+													`Delete ${character.name}? This cannot be undone.`
+												)
+											) {
+												event.preventDefault();
+											}
+										}}
+									>
+										Delete
 									</button>
 								</div>
 							</td>

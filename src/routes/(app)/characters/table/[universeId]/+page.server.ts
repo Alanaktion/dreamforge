@@ -6,6 +6,7 @@ import {
 } from '$lib/server/dreamforge/queries';
 import {
 	createCharacter,
+	deleteCharacter,
 	DreamForgeError,
 	updateCharacterBasic
 } from '$lib/server/dreamforge/mutations';
@@ -92,6 +93,27 @@ export const actions: Actions = {
 					message: err.message,
 					characterId,
 					values: { name, summary }
+				});
+			}
+			throw err;
+		}
+	},
+
+	delete: async ({ locals, request }) => {
+		const formData = await request.formData();
+		const characterId = formData.get('characterId')?.toString().trim() ?? '';
+
+		try {
+			if (!characterId) throw new DreamForgeError('Character ID is required.');
+
+			deleteCharacter(locals.user!.id, characterId);
+			return { action: 'delete' as const, success: true as const, characterId };
+		} catch (err) {
+			if (err instanceof DreamForgeError) {
+				return fail(err.status, {
+					action: 'delete' as const,
+					message: err.message,
+					characterId
 				});
 			}
 			throw err;
