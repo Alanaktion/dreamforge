@@ -18,7 +18,7 @@
 	}
 </script>
 
-<div class="mx-auto max-w-7xl px-6 py-6 lg:px-10 lg:py-8">
+<div class="mx-auto px-6 py-6 lg:px-10 lg:py-8">
 	<header class="forge-panel mb-8 overflow-hidden px-6 py-5">
 		<div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
 			<div class="space-y-3">

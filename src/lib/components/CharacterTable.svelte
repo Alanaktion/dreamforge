@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { enhance } from '$app/forms';
 
@@ -68,15 +67,11 @@
 		return value;
 	}
 
-	function setUniverse(universeId: string) {
+	$effect(() => {
+		// Reset editing/create states when universe changes
 		editingId = null;
 		showCreateRow = false;
-		if (universeId) {
-			goto(resolve(`/characters/table/${universeId}`), { noScroll: true });
-		} else {
-			goto(resolve('/characters/table'), { noScroll: true });
-		}
-	}
+	});
 
 	function startEdit(character: Character) {
 		showCreateRow = false;
@@ -117,25 +112,23 @@
 <div class="forge-panel flex flex-wrap items-center gap-3 px-5 py-3">
 	<span class="text-xs font-semibold tracking-[0.16em] text-surface-500 uppercase">Universe</span>
 	<div class="flex flex-wrap gap-2">
-		<button
-			type="button"
-			onclick={() => setUniverse('')}
+		<a
+			href={resolve('/characters/table')}
 			class={!selectedUniverseId
-				? 'forge-button py-1.5 text-xs'
-				: 'forge-button-ghost py-1.5 text-xs'}
+				? 'forge-button inline-block py-1.5 text-xs'
+				: 'forge-button-ghost inline-block py-1.5 text-xs'}
 		>
 			All
-		</button>
+		</a>
 		{#each universes as u (u.id)}
-			<button
-				type="button"
-				onclick={() => setUniverse(u.id)}
+			<a
+				href={resolve(`/characters/table/${u.id}`)}
 				class={selectedUniverseId === u.id
-					? 'forge-button py-1.5 text-xs'
-					: 'forge-button-ghost py-1.5 text-xs'}
+					? 'forge-button inline-block py-1.5 text-xs'
+					: 'forge-button-ghost inline-block py-1.5 text-xs'}
 			>
 				{u.name}
-			</button>
+			</a>
 		{/each}
 	</div>
 	{#if !selectedUniverseId && traitDefinitions.length === 0}
@@ -183,15 +176,15 @@
 {/each}
 
 <!-- Table -->
-<div class="forge-panel overflow-hidden">
-	<div class="overflow-x-auto">
+<div class="forge-panel overflow-clip">
+	<div class="overflow-x-auto overflow-y-clip">
 		<table class="forge-table">
-			<thead>
+			<thead class="sticky top-0 bg-surface-50 dark:bg-surface-900 z-10">
 				<tr>
 					{#if !selectedUniverseId}
 						<th class="w-32">Universe</th>
 					{/if}
-					<th class="sticky left-0 min-w-36 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
+					<th class={`sticky left-0 min-w-36 lg:min-w-40 2xl:min-w-48 ${selectedUniverseId ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200' : ''}`}
 						>Name</th
 					>
 					<th class="min-w-48">Summary</th>
@@ -199,7 +192,7 @@
 						<th class="min-w-28">{td.label}</th>
 					{/each}
 					<th class="w-24">Updated</th>
-					<th class="sticky right-0 w-32 bg-surface-50 lg:min-w-40 dark:bg-surface-900"
+					<th class="sticky right-0 w-32 bg-primary-50 lg:min-w-40 dark:bg-primary-900 text-primary-700 dark:text-primary-200"
 						>Actions</th
 					>
 				</tr>
@@ -282,7 +275,7 @@
 							</td>
 						{/each}
 						<td class="text-xs text-surface-400">—</td>
-						<td class="sticky right-0 bg-surface-50 dark:bg-surface-900">
+						<td class="sticky right-0 bg-primary-50 dark:bg-primary-900">
 							<div class="flex flex-wrap items-center gap-1.5">
 								<button
 									class="forge-button px-3 py-1 text-xs"
@@ -317,7 +310,7 @@
 									>
 								</td>
 							{/if}
-							<td class="sticky left-0 bg-surface-50 dark:bg-surface-900">
+							<td class={`sticky left-0 ${selectedUniverseId ? 'bg-primary-50 dark:bg-primary-900 text-primary-700 dark:text-primary-200' : ''}`}>
 								<input
 									class="forge-input py-1 text-xs"
 									name="name"
@@ -375,7 +368,7 @@
 								</td>
 							{/each}
 							<td class="text-xs text-surface-400">—</td>
-							<td class="sticky right-0 bg-surface-50 dark:bg-surface-900">
+							<td class="sticky right-0 bg-primary-50/50 dark:bg-primary-900/50">
 								<div class="flex flex-wrap items-center gap-1.5">
 									<button
 										class="forge-button px-3 py-1 text-xs"
@@ -409,18 +402,16 @@
 									>
 								</td>
 							{/if}
-							<td
-								class="sticky left-0 bg-surface-50 font-medium text-surface-950 dark:bg-surface-900 dark:text-surface-50"
-							>
+							<td class={`sticky left-0 ${selectedUniverseId ? 'bg-primary-50/50 dark:bg-primary-900/50 text-primary-700 dark:text-primary-200' : ''}`}>
 								<a class="forge-link" href={resolve(`/characters/${character.id}`)}>
 									{character.name}
 								</a>
 							</td>
-							<td class="max-w-[200px] text-surface-600 dark:text-surface-400">
+							<td class="max-w-50 text-surface-600 dark:text-surface-400">
 								<span class="line-clamp-1 text-xs">{character.summary || '—'}</span>
 							</td>
 							{#each traitDefinitions as td (td.id)}
-								<td class="max-w-[160px]">
+								<td class="max-w-40">
 									<span
 										class="line-clamp-1 text-xs text-surface-600 dark:text-surface-400"
 									>
@@ -431,7 +422,7 @@
 							<td class="text-xs whitespace-nowrap text-surface-500">
 								{character.updatedAt.toLocaleDateString()}
 							</td>
-							<td class="sticky right-0 bg-surface-50 dark:bg-surface-900">
+							<td class="sticky right-0 bg-primary-50/50 dark:bg-primary-900/50">
 								<div class="flex items-center gap-2">
 									<button
 										type="button"

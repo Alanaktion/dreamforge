@@ -11,11 +11,10 @@
 			<h2
 				class="mt-3 text-4xl font-semibold tracking-tight text-surface-950 dark:text-surface-50"
 			>
-				Your settings and trait schemas.
+				Your universes.
 			</h2>
 			<p class="mt-3 max-w-2xl text-base leading-7 text-surface-700 dark:text-surface-300">
-				Each universe defines the trait schema shared by all characters in that setting.
-				Edit traits here without touching individual character records.
+				Each universe defines the traits available to all its characters.
 			</p>
 		</div>
 		<a class="forge-button shrink-0" href={resolve('/universes/create')}>New universe</a>
