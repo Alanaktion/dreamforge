@@ -1,0 +1,41 @@
+name: CI (Deno)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Test (Deno)
+    runs-on: ubuntu-latest
+
+    env:
+      DATA_PATH: ./data
+      ORIGIN: http://localhost:5173
+      BETTER_AUTH_SECRET: ci-placeholder-secret-do-not-use-in-prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node is required to compile native addons (e.g. better-sqlite3)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Build
+        run: deno task build
+
+      - name: Type check
+        run: deno task check
+
+      - name: Test
+        run: deno task test
